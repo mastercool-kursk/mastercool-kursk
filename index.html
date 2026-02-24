@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ru" dir="ltr" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Профессиональный ремонт холодильников всех марок в Курске. Бесплатная диагностика, работаем ежедневно 8:00-22:00. Мастер Александр +7 (951) 326-50-45">
+    <meta name="keywords" content="ремонт холодильников, Курск, холодильное оборудование, инверторные холодильники, диагностика, мастер по ремонту, холодильники на дому">
+    <meta property="og:title" content="Ремонт холодильников в Курске | MasterCool Курск">
+    <meta property="og:description" content="Профессиональный ремонт холодильников всех марок в Курске. Работаем ежедневно с 8:00 до 22:00">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630.png?text=MasterCool+Курск">
+    <meta name="robots" content="index, follow">
+    <title>Ремонт холодильников в Курске | MasterCool Курск | Бесплатная диагностика</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❄️</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>❄️</text></svg>">
+</head>
+<body>
+    <!-- Новый прелоадер в виде поисковой строки -->
+    <div class="preloader" id="preloader">
+        <div class="preloader-container">
+            <div class="search-bar-container">
+                <div class="search-bar-wrapper">
+                    <div class="search-bar">
+                        <div class="search-icon">
+                            <i class="fas fa-search"></i>
+                            <div class="search-icon-pulse"></div>
+                        </div>
+                        <div class="search-input-container">
+                            <div class="search-input">
+                                <div class="typed-text" id="typedText"></div>
+                                <div class="cursor" id="cursor"></div>
+                            </div>
+                            <div class="search-placeholder">Введите запрос...</div>
+                        </div>
+                        <div class="search-actions">
+                            <div class="search-mic">
+                                <i class="fas fa-microphone"></i>
+                                <div class="mic-pulse"></div>
+                            </div>
+                            <div class="search-camera">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="search-suggestions">
+                        <div class="suggestion-chip">Ремонт холодильников</div>
+                        <div class="suggestion-chip">Холодильник не морозит</div>
+                        <div class="suggestion-chip">Мастер по холодильникам Курск</div>
+                        <div class="suggestion-chip">Ремонт инверторных холодильников</div>
+                    </div>
+                    <div class="search-loading-bar">
+                        <div class="loading-bar-fill" id="loadingBarFill"></div>
+                        <div class="loading-bar-glow"></div>
+                    </div>
+                </div>
+                <div class="search-engine-badge">
+                    <div class="badge-icon">
+                        <i class="fas fa-snowflake"></i>
+                    </div>
+                    <span class="badge-text">MasterCool Search</span>
+                </div>
+            </div>
+            
+            <div class="search-results">
+                <div class="result-item">
+                    <div class="result-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="result-content">
+                        <div class="result-title">Ремонт холодильников в Курске</div>
+                        <div class="result-url">mastercool-kursk.ru</div>
+                        <div class="result-description">Профессиональный ремонт холодильников всех марок. Бесплатная диагностика. Гарантия на работы. Ежедневно 8:00-22:00</div>
+                    </div>
+                </div>
+                <div class="result-item">
+                    <div class="result-icon">
+                        <i class="fas fa-phone"></i>
+                    </div>
+                    <div class="result-content">
+                        <div class="result-title">+7 (951) 326-50-45 - Мастер Александр</div>
+                        <div class="result-url">mastercool-kursk.ru/contacts</div>
+                        <div class="result-description">Позвоните прямо сейчас для вызова мастера. Работаем по всему Курску и области</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preloader-background">
+            <div class="search-particle particle-1"></div>
+            <div class="search-particle particle-2"></div>
+            <div class="search-particle particle-3"></div>
+            <div class="search-particle particle-4"></div>
+            <div class="search-particle particle-5"></div>
+            <div class="floating-snowflake sf1"><i class="fas fa-snowflake"></i></div>
+            <div class="floating-snowflake sf2"><i class="fas fa-snowflake"></i></div>
+            <div class="floating-snowflake sf3"><i class="fas fa-snowflake"></i></div>
+        </div>
+    </div>
+
+    <!-- Переключатель темы с улучшенной анимацией -->
+    <button class="theme-switcher" id="themeSwitcher" aria-label="Переключить светлую/темную тему" title="Переключить светлую/темную тему">
+        <i class="fas fa-moon" id="themeIcon"></i>
+        <div class="theme-switcher-glow"></div>
+    </button>
+
+    <!-- Кнопка "Позвонить" для мобильных с улучшенной анимацией -->
+    <a href="tel:+79513265045" class="call-button-mobile" aria-label="Позвонить Александру" title="Позвонить Александру">
+        <i class="fas fa-phone"></i>
+        <span class="call-pulse"></span>
+        <span class="call-ripple"></span>
+    </a>
+
+    <!-- Главное меню с улучшенным логотипом -->
+    <header class="header" role="banner">
+        <div class="container">
+            <nav class="navbar" aria-label="Основная навигация">
+                <div class="logo">
+                    <div class="logo-icon-container">
+                        <div class="logo-icon-3d">
+                            <i class="fas fa-snowflake"></i>
+                            <div class="logo-icon-inner-glow"></div>
+                        </div>
+                        <div class="logo-icon-glow"></div>
+                        <div class="logo-icon-particles"></div>
+                    </div>
+                    <div class="logo-text">
+                        <h1 class="logo-title wave-logo" id="waveLogo">
+                            <span class="logo-letter" data-letter="M">M</span>
+                            <span class="logo-letter" data-letter="a">a</span>
+                            <span class="logo-letter" data-letter="s">s</span>
+                            <span class="logo-letter" data-letter="t">t</span>
+                            <span class="logo-letter" data-letter="e">e</span>
+                            <span class="logo-letter" data-letter="r">r</span>
+                            <span class="logo-letter" data-letter="C">C</span>
+                            <span class="logo-letter" data-letter="o">o</span>
+                            <span class="logo-letter" data-letter="o">o</span>
+                            <span class="logo-letter" data-letter="l">l</span>
+                            <span class="logo-space">&nbsp;</span>
+                            <span class="logo-letter" data-letter="К">К</span>
+                            <span class="logo-letter" data-letter="у">у</span>
+                            <span class="logo-letter" data-letter="р">р</span>
+                            <span class="logo-letter" data-letter="с">с</span>
+                            <span class="logo-letter" data-letter="к">к</span>
+                        </h1>
+                        <p class="logo-subtitle">
+                            <span class="logo-subtitle-word">Ремонт</span>
+                            <span class="logo-subtitle-word">холодильников</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <ul class="nav-menu" id="navMenu" role="menubar">
+                    <li class="nav-item" role="none">
+                        <a href="#services" class="nav-link" title="Наши услуги по ремонту" role="menuitem">
+                            <i class="fas fa-tools" aria-hidden="true"></i> 
+                            <span class="nav-link-text">Услуги</span>
+                            <span class="nav-link-underline"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#about" class="nav-link" title="О нашей компании" role="menuitem">
+                            <i class="fas fa-info-circle" aria-hidden="true"></i> 
+                            <span class="nav-link-text">О нас</span>
+                            <span class="nav-link-underline"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#contacts" class="nav-link" title="Контактная информация" role="menuitem">
+                            <i class="fas fa-address-book" aria-hidden="true"></i> 
+                            <span class="nav-link-text">Контакты</span>
+                            <span class="nav-link-underline"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#articles" class="nav-link" title="Полезные статьи по ремонту" role="menuitem">
+                            <i class="fas fa-newspaper" aria-hidden="true"></i> 
+                            <span class="nav-link-text">Статьи</span>
+                            <span class="nav-link-underline"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="none">
+                        <a href="#channels" class="nav-link" title="Наши каналы и видео" role="menuitem">
+                            <i class="fas fa-video" aria-hidden="true"></i> 
+                            <span class="nav-link-text">Видео</span>
+                            <span class="nav-link-underline"></span>
+                        </a>
+                    </li>
+                    <li class="nav-item call-button-desktop" role="none">
+                        <a href="tel:+79513265045" class="nav-link call-link" title="Позвонить прямо сейчас" role="menuitem">
+                            <i class="fas fa-phone" aria-hidden="true"></i> 
+                            <span class="call-link-text">+7 (951) 326-50-45</span>
+                            <span class="call-link-pulse"></span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <button class="hamburger" id="hamburger" aria-label="Открыть меню" aria-expanded="false" title="Открыть меню">
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <span class="bar"></span>
+                    <div class="hamburger-glow"></div>
+                </button>
+            </nav>
+        </div>
+        <div class="header-glow"></div>
+    </header>
+
+    <!-- Герой секция с улучшенными эффектами -->
+    <section class="hero" aria-label="Главный баннер">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h2 class="hero-title animate-fade-in">
+                        <span class="hero-title-main">Ремонт холодильников</span>
+                        <span class="hero-title-highlight">
+                            <span class="hero-title-highlight-text">в Курске</span>
+                            <span class="hero-title-highlight-glow"></span>
+                        </span>
+                    </h2>
+                    <p class="hero-description animate-fade-in-delay">
+                        Профессиональный ремонт бытовых и торговых холодильников всех марок. 
+                        Бесплатная диагностика. Гарантия на все работы. Работаем ежедневно 8:00-22:00.
+                    </p>
+                    <div class="hero-buttons animate-fade-in-delay-2">
+                        <a href="tel:+79513265045" class="btn btn-primary" title="Позвонить для вызова мастера">
+                            <i class="fas fa-phone" aria-hidden="true"></i> 
+                            <span>Вызвать мастера</span>
+                            <div class="btn-glow"></div>
+                        </a>
+                        <a href="https://t.me/mastercoolKurskRu" target="_blank" class="btn btn-secondary" title="Написать в Telegram">
+                            <i class="fab fa-telegram" aria-hidden="true"></i> 
+                            <span>Написать в Telegram</span>
+                            <div class="btn-glow"></div>
+                        </a>
+                    </div>
+                    <div class="hero-features">
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                                <div class="feature-icon-glow"></div>
+                            </div>
+                            <span>Бесплатная диагностика</span>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-clock" aria-hidden="true"></i>
+                                <div class="feature-icon-glow"></div>
+                            </div>
+                            <span>Ежедневно 8:00-22:00</span>
+                        </div>
+                        <div class="feature">
+                            <div class="feature-icon">
+                                <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                                <div class="feature-icon-glow"></div>
+                            </div>
+                            <span>Гарантия на работы</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-image animate-slide-in">
+                    <div class="hero-image-container">
+                        <div class="floating-element floating-element-1">
+                            <i class="fas fa-snowflake" aria-hidden="true"></i>
+                            <div class="floating-element-glow"></div>
+                        </div>
+                        <div class="floating-element floating-element-2">
+                            <i class="fas fa-tools" aria-hidden="true"></i>
+                            <div class="floating-element-glow"></div>
+                        </div>
+                        <div class="floating-element floating-element-3">
+                            <i class="fas fa-wrench" aria-hidden="true"></i>
+                            <div class="floating-element-glow"></div>
+                        </div>
+                        <div class="floating-element floating-element-4">
+                            <i class="fas fa-cog" aria-hidden="true"></i>
+                            <div class="floating-element-glow"></div>
+                        </div>
+                        <div class="hero-image-placeholder" aria-hidden="true">
+                            <div class="hero-image-3d">
+                                <i class="fas fa-refrigerator" aria-hidden="true"></i>
+                            </div>
+                            <div class="hero-image-glow"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="hero-scroll-indicator">
+            <i class="fas fa-chevron-down" aria-hidden="true"></i>
+            <div class="scroll-indicator-glow"></div>
+        </div>
+        <div class="hero-background-glow"></div>
+    </section>
+
+    <!-- Услуги с улучшенными карточками -->
+    <section id="services" class="services" aria-labelledby="services-title">
+        <div class="container">
+            <div class="section-header">
+                <h2 id="services-title" class="section-title">
+                    <span>Наши услуги</span>
+                    <div class="section-title-glow"></div>
+                </h2>
+                <p class="section-subtitle">Профессиональный ремонт всех типов холодильного оборудования</p>
+            </div>
+            
+            <div class="services-grid">
+                <article class="service-card" data-tooltip="Ремонтируем все марки: LG, Samsung, Bosch, Indesit, Atlant и другие">
+                    <div class="service-card-inner">
+                        <div class="service-icon">
+                            <i class="fas fa-home" aria-hidden="true"></i>
+                            <div class="service-icon-glow"></div>
+                        </div>
+                        <h3 class="service-title">Бытовые холодильники</h3>
+                        <p class="service-description">Ремонт всех марок, включая модели с электронным управлением, инверторным и линейным компрессором.</p>
+                        <div class="service-badge">Все марки</div>
+                        <div class="service-card-glow"></div>
+                    </div>
+                </article>
+                
+                <article class="service-card" data-tooltip="Витрины, холодильные камеры, лари, прилавки">
+                    <div class="service-card-inner">
+                        <div class="service-icon">
+                            <i class="fas fa-store" aria-hidden="true"></i>
+                            <div class="service-icon-glow"></div>
+                        </div>
+                        <h3 class="service-title">Торговое оборудование</h3>
+                        <p class="service-description">Ремонт торгового холодильного оборудования: витрины, холодильные камеры, прилавки.</p>
+                        <div class="service-badge">Для бизнеса</div>
+                        <div class="service-card-glow"></div>
+                    </div>
+                </article>
+                
+                <article class="service-card" data-tooltip="Современное оборудование с плавной регулировкой мощности">
+                    <div class="service-card-inner">
+                        <div class="service-icon">
+                            <i class="fas fa-sliders-h" aria-hidden="true"></i>
+                            <div class="service-icon-glow"></div>
+                        </div>
+                        <h3 class="service-title">Инверторные холодильники</h3>
+                        <p class="service-description">Специализируемся на ремонте современных инверторных холодильников с электронным управлением.</p>
+                        <div class="service-badge">Современные</div>
+                        <div class="service-card-glow"></div>
+                    </div>
+                </article>
+                
+                <article class="service-card" data-tooltip="Выявляем проблему бесплатно перед ремонтом">
+                    <div class="service-card-inner">
+                        <div class="service-icon">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                            <div class="service-icon-glow"></div>
+                        </div>
+                        <h3 class="service-title">Бесплатная диагностика</h3>
+                        <p class="service-description">При проведении ремонта диагностика выполняется абсолютно бесплатно.</p>
+                        <div class="service-badge">Бесплатно</div>
+                        <div class="service-card-glow"></div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- О нас с улучшенной статистикой -->
+    <section id="about" class="about" aria-labelledby="about-title">
+        <div class="container">
+            <div class="section-header">
+                <h2 id="about-title" class="section-title">
+                    <span>О нашей компании</span>
+                    <div class="section-title-glow"></div>
+                </h2>
+            </div>
+            
+            <div class="about-content">
+                <div class="about-text">
+                    <p class="about-description">
+                        <strong>MasterCool Курск</strong> — профессиональный сервис по ремонту холодильного оборудования. 
+                        Мы специализируемся на ремонте бытовых холодильников всех марок, включая модели с электронным управлением, 
+                        а также с инверторным и линейным компрессором.
+                    </p>
+                    
+                    <p class="about-description">
+                        Также выполняем ремонт торгового холодильного оборудования (витрины, холодильные камеры) для бизнеса.
+                    </p>
+                    
+                    <div class="about-features">
+                        <div class="about-feature">
+                            <div class="about-feature-icon">
+                                <i class="fas fa-check-circle" aria-hidden="true"></i>
+                                <div class="about-feature-icon-glow"></div>
+                            </div>
+                            <div>
+                                <h4>Диагностика бесплатно</h4>
+                                <p>При проведении ремонта диагностика выполняется бесплатно</p>
+                            </div>
+                        </div>
+                        
+                        <div class="about-feature">
+                            <div class="about-feature-icon">
+                                <i class="fas fa-clock" aria-hidden="true"></i>
+                                <div class="about-feature-icon-glow"></div>
+                            </div>
+                            <div>
+                                <h4>Удобный график</h4>
+                                <p>Режим работы: ежедневно с 8:00 до 22:00</p>
+                            </div>
+                        </div>
+                        
+                        <div class="about-feature">
+                            <div class="about-feature-icon">
+                                <i class="fas fa-user-tie" aria-hidden="true"></i>
+                                <div class="about-feature-icon-glow"></div>
+                            </div>
+                            <div>
+                                <h4>Опытный мастер</h4>
+                                <p>Александр — опытный мастер с профильным образованием</p>
+                            </div>
+                        </div>
+                        
+                        <div class="about-feature">
+                            <div class="about-feature-icon">
+                                <i class="fas fa-shield-alt" aria-hidden="true"></i>
+                                <div class="about-feature-icon-glow"></div>
+                            </div>
+                            <div>
+                                <h4>Гарантия качества</h4>
+                                <p>Гарантия на все выполненные работы</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-image">
+                    <div class="about-image-container">
+                        <div class="floating-stat floating-stat-1">
+                            <div class="stat-number">15+</div>
+                            <div class="stat-text">лет опыта</div>
+                            <div class="stat-glow"></div>
+                        </div>
+                        <div class="floating-stat floating-stat-2">
+                            <div class="stat-number">1000+</div>
+                            <div class="stat-text">отремонтировано</div>
+                            <div class="stat-glow"></div>
+                        </div>
+                        <div class="floating-stat floating-stat-3">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-text">поддержка</div>
+                            <div class="stat-glow"></div>
+                        </div>
+                        <div class="about-image-glow"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Контакты с улучшенными карточками -->
+    <section id="contacts" class="contacts" aria-labelledby="contacts-title">
+        <div class="container">
+            <div class="section-header">
+                <h2 id="contacts-title" class="section-title">
+                    <span>Контакты</span>
+                    <div class="section-title-glow"></div>
+                </h2>
+                <p class="section-subtitle">Свяжитесь с нами удобным для вас способом</p>
+            </div>
+            
+            <div class="contacts-grid">
+                <div class="contact-card" data-tooltip="Позвонить прямо сейчас">
+                    <div class="contact-card-inner">
+                        <div class="contact-icon">
+                            <i class="fas fa-phone-alt" aria-hidden="true"></i>
+                            <div class="contact-icon-glow"></div>
+                        </div>
+                        <h3 class="contact-title">Телефон</h3>
+                        <a href="tel:+79513265045" class="contact-link">+7 (951) 326-50-45</a>
+                        <p class="contact-info">Александр</p>
+                        <div class="contact-action">
+                            <a href="tel:+79513265045" class="btn btn-small" title="Позвонить">
+                                <i class="fas fa-phone" aria-hidden="true"></i> 
+                                <span>Позвонить</span>
+                                <div class="btn-glow"></div>
+                            </a>
+                        </div>
+                        <div class="contact-card-glow"></div>
+                    </div>
+                </div>
+                
+                <div class="contact-card" data-tooltip="Написать в Telegram">
+                    <div class="contact-card-inner">
+                        <div class="contact-icon">
+                            <i class="fab fa-telegram" aria-hidden="true"></i>
+                            <div class="contact-icon-glow"></div>
+                        </div>
+                        <h3 class="contact-title">Telegram</h3>
+                        <a href="https://t.me/mastercoolKurskRu" target="_blank" class="contact-link">@mastercoolKurskRu</a>
+                        <p class="contact-info">Быстрый ответ</p>
+                        <div class="contact-action">
+                            <a href="https://t.me/mastercoolKurskRu" target="_blank" class="btn btn-small" title="Написать">
+                                <i class="fab fa-telegram" aria-hidden="true"></i> 
+                                <span>Написать</span>
+                                <div class="btn-glow"></div>
+                            </a>
+                        </div>
+                        <div class="contact-card-glow"></div>
+                    </div>
+                </div>
+                
+                <div class="contact-card" data-tooltip="Профиль на Профи.ру">
+                    <div class="contact-card-inner">
+                        <div class="contact-icon">
+                            <i class="fas fa-user-check" aria-hidden="true"></i>
+                            <div class="contact-icon-glow"></div>
+                        </div>
+                        <h3 class="contact-title">Профи.ру</h3>
+                        <a href="https://profi.ru/profile/BubnovAN2/" target="_blank" class="contact-link">Профиль мастера</a>
+                        <p class="contact-info">Отзывы и рейтинг</p>
+                        <div class="contact-action">
+                            <a href="https://profi.ru/profile/BubnovAN2/" target="_blank" class="btn btn-small" title="Посмотреть профиль">
+                                <i class="fas fa-external-link-alt" aria-hidden="true"></i> 
+                                <span>Открыть</span>
+                                <div class="btn-glow"></div>
+                            </a>
+                        </div>
+                        <div class="contact-card-glow"></div>
+                    </div>
+                </div>
+                
+                <div class="contact-card" data-tooltip="Услуги на Яндекс">
+                    <div class="contact-card-inner">
+                        <div class="contact-icon">
+                            <i class="fab fa-yandex" aria-hidden="true"></i>
+                            <div class="contact-icon-glow"></div>
+                        </div>
+                        <h3 class="contact-title">Яндекс.Услуги</h3>
+                        <a href="https://uslugi.yandex.ru/profile/AleksandrBubnov-155627" target="_blank" class="contact-link">Александр Бубнов</a>
+                        <p class="contact-info">Официальный профиль</p>
+                        <div class="contact-action">
+                            <a href="https://uslugi.yandex.ru/profile/AleksandrBubnov-155627" target="_blank" class="btn btn-small" title="Посмотреть профиль">
+                                <i class="fas fa-external-link-alt" aria-hidden="true"></i> 
+                                <span>Открыть</span>
+                                <div class="btn-glow"></div>
+                            </a>
+                        </div>
+                        <div class="contact-card-glow"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contacts-schedule">
+                <div class="schedule-card">
+                    <div class="schedule-card-icon">
+                        <i class="fas fa-clock" aria-hidden="true"></i>
+                        <div class="schedule-card-icon-glow"></div>
+                    </div>
+                    <div>
+                        <h4>Режим работы</h4>
+                        <p>Ежедневно с 8:00 до 22:00</p>
+                    </div>
+                </div>
+                <div class="schedule-card">
+                    <div class="schedule-card-icon">
+                        <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                        <div class="schedule-card-icon-glow"></div>
+                    </div>
+                    <div>
+                        <h4>Обслуживаем</h4>
+                        <p>Весь Курск и область</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Видео каналы с улучшенными эффектами -->
+    <section id="channels" class="channels" aria-labelledby="channels-title">
+        <div class="container">
+            <div class="section-header">
+                <h2 id="channels-title" class="section-title">
+                    <span>Наши каналы</span>
+                    <div class="section-title-glow"></div>
+                </h2>
+                <p class="section-subtitle">Полезные видео по ремонту холодильников</p>
+            </div>
+            
+            <div class="channels-grid">
+                <a href="https://rutube.ru/channel/25164026/" target="_blank" class="channel-card" title="Канал на Rutube">
+                    <div class="channel-icon">
+                        <i class="fas fa-play-circle" aria-hidden="true"></i>
+                        <div class="channel-icon-glow"></div>
+                    </div>
+                    <h3 class="channel-title">Rutube</h3>
+                    <p class="channel-description">Видео по ремонту холодильников</p>
+                    <div class="channel-badge">Видео</div>
+                    <div class="channel-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/mastercool_kursk_ru" target="_blank" class="channel-card" title="Канал на Яндекс Дзен">
+                    <div class="channel-icon">
+                        <i class="fab fa-yandex" aria-hidden="true"></i>
+                        <div class="channel-icon-glow"></div>
+                    </div>
+                    <h3 class="channel-title">Яндекс Дзен</h3>
+                    <p class="channel-description">Статьи и обзоры</p>
+                    <div class="channel-badge">Статьи</div>
+                    <div class="channel-card-glow"></div>
+                </a>
+                
+                <a href="https://vkvideo.ru/@public135216781" target="_blank" class="channel-card" title="Видео ВКонтакте">
+                    <div class="channel-icon">
+                        <i class="fab fa-vk" aria-hidden="true"></i>
+                        <div class="channel-icon-glow"></div>
+                    </div>
+                    <h3 class="channel-title">VK Видео</h3>
+                    <p class="channel-description">Видео ремонтов</p>
+                    <div class="channel-badge">Видео</div>
+                    <div class="channel-card-glow"></div>
+                </a>
+                
+                <a href="https://www.youtube.com/@mastercool_kursk_ru" target="_blank" class="channel-card" title="Канал на YouTube">
+                    <div class="channel-icon">
+                        <i class="fab fa-youtube" aria-hidden="true"></i>
+                        <div class="channel-icon-glow"></div>
+                    </div>
+                    <h3 class="channel-title">YouTube</h3>
+                    <p class="channel-description">Видео инструкции</p>
+                    <div class="channel-badge">Видео</div>
+                    <div class="channel-card-glow"></div>
+                </a>
+
+                <!-- Добавленная ссылка на канал MAX -->
+                <a href="https://max.ru/join/9I4Nmx2gx_4xMPMJINGJ6WOQyN8GwpNkjbHJ8jbPXtg" target="_blank" class="channel-card" title="Канал MAX">
+                    <div class="channel-icon">
+                        <i class="fas fa-star" aria-hidden="true"></i>
+                        <div class="channel-icon-glow"></div>
+                    </div>
+                    <h3 class="channel-title">MAX</h3>
+                    <p class="channel-description">Присоединяйтесь к каналу</p>
+                    <div class="channel-badge">Новый</div>
+                    <div class="channel-card-glow"></div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Статьи с улучшенными эффектами -->
+    <section id="articles" class="articles" aria-labelledby="articles-title">
+        <div class="container">
+            <div class="section-header">
+                <h2 id="articles-title" class="section-title">
+                    <span>Полезные статьи</span>
+                    <div class="section-title-glow"></div>
+                </h2>
+                <p class="section-subtitle">Материалы по ремонту и обслуживанию холодильников</p>
+            </div>
+            
+            <div class="articles-grid">
+                <a href="https://dzen.ru/suite/8cb1ef42-6a90-48d4-93cf-8f9d6729bde8?share_to=link" target="_blank" class="article-card" title="Читать статьи по бытовым холодильникам">
+                    <div class="article-icon">
+                        <i class="fas fa-book" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Бытовые холодильники</h3>
+                        <p class="article-description">Статьи по ремонту и обслуживанию бытовых холодильников всех марок</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">5 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/e9e33c97-7fbf-426e-abc0-1dd7fcdad33e?share_to=link" target="_blank" class="article-card" title="Читать статьи по инверторным холодильникам">
+                    <div class="article-icon">
+                        <i class="fas fa-cogs" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Инверторные холодильники</h3>
+                        <p class="article-description">Специфика ремонта современных инверторных холодильников</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">7 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/887b2cb6-9ef5-47a3-bd1b-dec85ea11e3a?share_to=link" target="_blank" class="article-card" title="Читать статьи по дизайнерским холодильникам">
+                    <div class="article-icon">
+                        <i class="fas fa-gem" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Дизайнерские холодильники</h3>
+                        <p class="article-description">Премиум-холодильники и особенности их обслуживания</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">6 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/e803434f-d2f0-4bb7-a7ce-96a5c3aaab5b?share_to=link" target="_blank" class="article-card" title="Читать статьи по умным холодильникам">
+                    <div class="article-icon">
+                        <i class="fas fa-brain" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Умные холодильники</h3>
+                        <p class="article-description">Холодильники с IoT и сенсорными панелями</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">8 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/03d6633a-43cd-4c50-9fe9-75202b7236bb?share_to=link" target="_blank" class="article-card" title="Читать статьи по холодильным центрам">
+                    <div class="article-icon">
+                        <i class="fas fa-industry" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Холодильные центры</h3>
+                        <p class="article-description">Промышленные холодильные установки</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">10 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/1402b437-df9c-4c15-88f6-58b793e8e31a?share_to=link" target="_blank" class="article-card" title="Читать статьи по системам кондиционирования">
+                    <div class="article-icon">
+                        <i class="fas fa-wind" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Системы кондиционирования</h3>
+                        <p class="article-description">Кондиционеры и их обслуживание</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">7 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/5e745ce6-3b46-4e80-9d69-48e76caed0dd?share_to=link" target="_blank" class="article-card" title="Читать статьи по умным холодильным системам">
+                    <div class="article-icon">
+                        <i class="fas fa-microchip" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Интеллектуальные системы</h3>
+                        <p class="article-description">Smart Cold и умные технологии</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">9 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/9fa43207-fe6f-4c77-af5d-23629f212bc0?share_to=link" target="_blank" class="article-card" title="Читать статьи по абсорбционным холодильникам">
+                    <div class="article-icon">
+                        <i class="fas fa-atom" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Абсорбционные холодильники</h3>
+                        <p class="article-description">Термоэлектрические технологии</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">8 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/24ac3563-1529-426e-add1-fad4f4522d82?share_to=link" target="_blank" class="article-card" title="Читать статьи по криогенному оборудованию">
+                    <div class="article-icon">
+                        <i class="fas fa-temperature-low" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Криогенное оборудование</h3>
+                        <p class="article-description">Низкотемпературные технологии</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">11 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/778f69dc-2f12-463c-a552-cc6607ffdcf7?share_to=link" target="_blank" class="article-card" title="Читать статьи по системам управления">
+                    <div class="article-icon">
+                        <i class="fas fa-cogs" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Системы управления ПЛК</h3>
+                        <p class="article-description">Программируемые логические контроллеры</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">10 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/47ddcee7-3f85-4ba3-9336-9495457d6627?share_to=link" target="_blank" class="article-card" title="Читать статьи по холодильному инжинирингу">
+                    <div class="article-icon">
+                        <i class="fas fa-project-diagram" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Холодильный инжиниринг</h3>
+                        <p class="article-description">Проектирование холодильных систем</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">12 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/a1a3a53f-5069-45f5-917c-89b059a0281e?share_to=link" target="_blank" class="article-card" title="Читать исследования по холодильной технике">
+                    <div class="article-icon">
+                        <i class="fas fa-flask" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Исследования и разработки</h3>
+                        <p class="article-description">Новые технологии в холодильной технике</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">9 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/8dcbff1c-1177-4b3d-8773-8b3cb0187791?share_to=link" target="_blank" class="article-card" title="Читать статьи по мониторингу оборудования">
+                    <div class="article-icon">
+                        <i class="fas fa-chart-line" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Мониторинг оборудования</h3>
+                        <p class="article-description">Системы контроля и диагностики</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">8 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/suite/17e89dee-b40f-47ee-95f7-6bfec6f48ba8?share_to=link" target="_blank" class="article-card" title="Читать статьи по созданию систем управления">
+                    <div class="article-icon">
+                        <i class="fas fa-code" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Создание систем управления</h3>
+                        <p class="article-description">Разработка ПЛК для холодильных установок</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">11 мин чтения</span>
+                            <span class="article-link">Читать →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+                
+                <a href="https://dzen.ru/mastercool_kursk_ru?tab=suites" target="_blank" class="article-card" title="Читать все статьи">
+                    <div class="article-icon">
+                        <i class="fas fa-newspaper" aria-hidden="true"></i>
+                        <div class="article-icon-glow"></div>
+                    </div>
+                    <div class="article-content">
+                        <h3 class="article-title">Все статьи</h3>
+                        <p class="article-description">Полная коллекция материалов по холодильной технике</p>
+                        <div class="article-meta">
+                            <span class="article-read-time">15+ статей</span>
+                            <span class="article-link">Смотреть все →</span>
+                        </div>
+                    </div>
+                    <div class="article-card-glow"></div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Футер с улучшенным логотипом и анимацией -->
+    <footer class="footer" role="contentinfo">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo footer-logo">
+                        <div class="logo-icon-container">
+                            <div class="logo-icon-3d">
+                                <i class="fas fa-snowflake"></i>
+                                <div class="logo-icon-inner-glow"></div>
+                            </div>
+                            <div class="logo-icon-glow"></div>
+                            <div class="logo-icon-particles"></div>
+                        </div>
+                        <div class="logo-text">
+                            <h3 class="logo-title wave-logo">
+                                <span class="logo-letter" data-letter="M">M</span>
+                                <span class="logo-letter" data-letter="a">a</span>
+                                <span class="logo-letter" data-letter="s">s</span>
+                                <span class="logo-letter" data-letter="t">t</span>
+                                <span class="logo-letter" data-letter="e">e</span>
+                                <span class="logo-letter" data-letter="r">r</span>
+                                <span class="logo-letter" data-letter="C">C</span>
+                                <span class="logo-letter" data-letter="o">o</span>
+                                <span class="logo-letter" data-letter="o">o</span>
+                                <span class="logo-letter" data-letter="l">l</span>
+                                <span class="logo-space">&nbsp;</span>
+                                <span class="logo-letter" data-letter="К">К</span>
+                                <span class="logo-letter" data-letter="у">у</span>
+                                <span class="logo-letter" data-letter="р">р</span>
+                                <span class="logo-letter" data-letter="с">с</span>
+                                <span class="logo-letter" data-letter="к">к</span>
+                            </h3>
+                            <p class="logo-subtitle">
+                                <span class="logo-subtitle-word">Ремонт</span>
+                                <span class="logo-subtitle-word">холодильников</span>
+                            </p>
+                        </div>
+                    </div>
+                    <p class="footer-description">
+                        Профессиональный ремонт холодильного оборудования в Курске. 
+                        Работаем ежедневно с 8:00 до 22:00.
+                    </p>
+                    <div class="footer-social">
+                        <a href="https://t.me/mastercoolKurskRu" target="_blank" class="social-link" title="Telegram" aria-label="Telegram">
+                            <i class="fab fa-telegram" aria-hidden="true"></i>
+                            <div class="social-link-glow"></div>
+                        </a>
+                        <a href="https://vkvideo.ru/@public135216781" target="_blank" class="social-link" title="ВКонтакте" aria-label="ВКонтакте">
+                            <i class="fab fa-vk" aria-hidden="true"></i>
+                            <div class="social-link-glow"></div>
+                        </a>
+                        <a href="https://www.youtube.com/@mastercool_kursk_ru" target="_blank" class="social-link" title="YouTube" aria-label="YouTube">
+                            <i class="fab fa-youtube" aria-hidden="true"></i>
+                            <div class="social-link-glow"></div>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-title">Контакты</h4>
+                    <div class="footer-contacts">
+                        <a href="tel:+79513265045" class="footer-link">
+                            <i class="fas fa-phone" aria-hidden="true"></i> 
+                            <span>+7 (951) 326-50-45</span>
+                        </a>
+                        <a href="https://t.me/mastercoolKurskRu" target="_blank" class="footer-link">
+                            <i class="fab fa-telegram" aria-hidden="true"></i> 
+                            <span>@mastercoolKurskRu</span>
+                        </a>
+                        <p class="footer-link">
+                            <i class="fas fa-clock" aria-hidden="true"></i> 
+                            <span>Ежедневно 8:00 - 22:00</span>
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4 class="footer-title">Навигация</h4>
+                    <nav class="footer-nav" aria-label="Вторичная навигация">
+                        <a href="#services" class="footer-link">Услуги</a>
+                        <a href="#about" class="footer-link">О нас</a>
+                        <a href="#contacts" class="footer-link">Контакты</a>
+                        <a href="#articles" class="footer-link">Статьи</a>
+                        <a href="#channels" class="footer-link">Видео</a>
+                    </nav>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p class="copyright">
+                    © <span id="currentYear">2023</span> MasterCool Курск. Ремонт холодильников в Курске.
+                </p>
+                <div class="footer-bottom-links">
+                    <a href="#" class="footer-bottom-link" onclick="return false">Политика конфиденциальности</a>
+                    <a href="#" class="footer-bottom-link" onclick="return false">Условия использования</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-glow"></div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
