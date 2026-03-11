@@ -1,0 +1,3500 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MasterCool HMI — Демонстрация Сайтов</title>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #0a0f1e;
+    font-family: 'Segoe UI', system-ui, -apple-system, 'Rajdhani', sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    color: white;
+}
+
+/* Главный контейнер — HMI-панель */
+.hmi {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Область iframe */
+.iframe-stage {
+    flex: 1 1 auto;
+    position: relative;
+    background: #030614;
+    box-shadow: inset 0 0 50px rgba(0, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.iframe-stage iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: none;
+}
+
+.iframe-stage iframe.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 2;
+}
+
+/* Панель управления — HMI стиль */
+.control-panel {
+    background: rgba(8, 20, 40, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid rgba(0, 230, 255, 0.4);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 230, 255, 0.4);
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+    z-index: 100;
+    position: relative;
+}
+
+/* Кнопки HMI */
+.btn-hmi {
+    background: rgba(20, 40, 60, 0.7);
+    border: 1px solid #00e5ff;
+    color: #e0f7fa;
+    font-family: 'Orbitron', 'Rajdhani', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    padding: 0.9rem 2.2rem;
+    border-radius: 50px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.3);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 160px;
+    justify-content: center;
+    user-select: none;
+}
+
+.btn-hmi:hover {
+    background: #00e5ff;
+    color: #010514;
+    border-color: #fff;
+    box-shadow: 0 0 35px #00e5ff, 0 4px 20px rgba(0, 229, 255, 0.7);
+    transform: translateY(-3px) scale(1.03);
+}
+
+.btn-hmi:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: 0 0 20px #00e5ff;
+}
+
+.btn-hmi.pause {
+    background: rgba(255, 170, 0, 0.2);
+    border-color: #ffaa00;
+    color: #ffd966;
+    box-shadow: 0 0 20px rgba(255, 170, 0, 0.4);
+}
+
+.btn-hmi.pause:hover {
+    background: #ffaa00;
+    color: #010514;
+    border-color: #fff;
+    box-shadow: 0 0 45px #ffaa00;
+}
+
+/* Индикатор */
+.indicator {
+    font-family: 'Orbitron', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 0.6rem 1.8rem;
+    border-radius: 60px;
+    border: 1px solid rgba(0, 230, 255, 0.6);
+    backdrop-filter: blur(4px);
+    color: #b2f0ff;
+    letter-spacing: 2px;
+    box-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    margin: 0 1rem;
+    min-width: 120px;
+    text-align: center;
+}
+
+/* Точки-индикаторы */
+.dot-container {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    margin: 0 1.5rem;
+}
+
+.dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    border: 2px solid rgba(0, 200, 255, 0.6);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+}
+
+.dot::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: transparent;
+    transition: all 0.3s ease;
+}
+
+.dot.active {
+    background: #00f2ff;
+    box-shadow: 0 0 25px cyan, 0 0 50px #00b8ff;
+    border-color: white;
+    transform: scale(1.4);
+}
+
+.dot.active::before {
+    background: #000;
+}
+
+.dot:hover {
+    background: rgba(0, 230, 250, 0.8);
+    transform: scale(1.25);
+}
+
+/* Таймер прогресса */
+.timer-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 4px;
+    width: 0%;
+    background: linear-gradient(90deg, #00e5ff, #aa5aff, #00e5ff);
+    background-size: 200% 100%;
+    box-shadow: 0 0 25px #00e5ff;
+    transition: width 5s linear;
+    z-index: 200;
+    animation: gradientShift 2s ease infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+/* Статус бар */
+.status-bar {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    border: 1px solid rgba(0, 230, 255, 0.4);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.85rem;
+    color: #00e5ff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 150;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 10px #00ff88;
+    animation: pulse 2s infinite;
+}
+
+.status-dot.paused {
+    background: #ffaa00;
+    box-shadow: 0 0 10px #ffaa00;
+    animation: none;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Адаптивность */
+@media (max-width: 900px) {
+    .btn-hmi { 
+        font-size: 0.95rem; 
+        padding: 0.7rem 1.5rem; 
+        min-width: 130px; 
+    }
+    .indicator { 
+        font-size: 1rem; 
+        padding: 0.4rem 1.2rem; 
+    }
+    .control-panel { 
+        gap: 1rem; 
+        padding: 1rem; 
+    }
+}
+
+@media (max-width: 600px) {
+    .btn-hmi span:not(.icon) { 
+        display: none; 
+    }
+    .btn-hmi { 
+        min-width: auto; 
+        padding: 0.9rem 1.4rem; 
+    }
+    .dot-container { 
+        display: none; 
+    }
+    .indicator {
+        min-width: 80px;
+        font-size: 0.9rem;
+    }
+    .status-bar {
+        top: 0.5rem;
+        right: 0.5rem;
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
+
+/* Иконки */
+.icon {
+    font-size: 1.4rem;
+    line-height: 1;
+}
+
+/* Эффект загрузки */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(3, 6, 20, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    transition: opacity 0.5s ease;
+}
+
+.loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 4px solid rgba(0, 229, 255, 0.3);
+    border-top-color: #00e5ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    box-shadow: 0 0 30px rgba(0, 229, 255, 0.5);
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+</style>
+</head>
+<body>
+<div class="hmi">
+    <!-- Индикатор прогресса авто-переключения -->
+    <div class="timer-glow" id="timerGlow"></div>
+    
+    <!-- Статус бар -->
+    <div class="status-bar">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">АВТО</span>
+    </div>
+    
+    <!-- Загрузка -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- Область сменных iframe -->
+    <div class="iframe-stage" id="iframeStage">
+        <!-- iframe будут вставлены скриптом -->
+    </div>
+    
+    <!-- Нижняя панель управления (HMI) -->
+    <div class="control-panel">
+        <button class="btn-hmi" id="prevBtn" aria-label="Предыдущий сайт">
+            <span class="icon">⏮️</span>
+            <span>Пред.</span>
+        </button>
+        
+        <button class="btn-hmi" id="playPauseBtn" aria-label="Пауза/Старт">
+            <span class="icon" id="playPauseIcon">⏸️</span>
+            <span id="playPauseText">Пауза</span>
+        </button>
+        
+        <button class="btn-hmi" id="nextBtn" aria-label="Следующий сайт">
+            <span class="icon">⏭️</span>
+            <span>След.</span>
+        </button>
+        
+        <div class="indicator" id="slideIndicator" aria-live="polite">1 / 6</div>
+        
+        <div class="dot-container" id="dotContainer" role="tablist">
+            <!-- Генерируется 6 точек -->
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    'use strict';
+    
+    // --------------------------------------------------------------
+    // ШЕСТЬ HTML-ФАЙЛОВ (полное содержимое)
+    // --------------------------------------------------------------
+    const htmlSources = [
+`<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MasterCool Курск - Профессиональный ремонт холодильников</title>
+<meta name="description" content="Ремонт бытовых и торговых холодильников в Курске. Инверторные компрессоры, электронное управление. Выезд на дом.">
+<meta name="keywords" content="ремонт холодильников Курск, мастер по холодильникам, ремонт инверторных холодильников, ремонт торгового оборудования">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"><\/script>
+<script>
+tailwind.config = {
+darkMode: 'class',
+theme: {
+extend: {
+fontFamily: {
+sans: ['Rajdhani', 'sans-serif'],
+display: ['Orbitron', 'sans-serif'],
+},
+colors: {
+primary: '#00e5ff',
+secondary: '#0091ea',
+dark: '#050b14',
+glass: 'rgba(255, 255, 255, 0.05)',
+glassBorder: 'rgba(255, 255, 255, 0.1)',
+},
+animation: {
+'float': 'float 6s ease-in-out infinite',
+'spin-slow': 'spin 12s linear infinite',
+'scroll': 'scroll 40s linear infinite',
+'pulse-glow': 'pulseGlow 3s infinite',
+},
+keyframes: {
+float: {
+'0%, 100%': { transform: 'translateY(0)' },
+'50%': { transform: 'translateY(-20px)' },
+},
+scroll: {
+'0%': { transform: 'translateX(0)' },
+'100%': { transform: 'translateX(-50%)' },
+},
+pulseGlow: {
+'0%, 100%': { filter: 'drop-shadow(0 0 5px rgba(0, 229, 255, 0.5))' },
+'50%': { filter: 'drop-shadow(0 0 20px rgba(0, 229, 255, 0.8))' },
+}
+}
+}
+}
+}
+<\/script>
+<style>
+body {
+overflow-x: hidden;
+background-color: #050b14;
+color: #e0f7fa;
+transition: background-color 0.5s ease, color 0.5s ease;
+}
+.light-theme {
+background-color: #f0f4f8;
+color: #102a43;
+}
+.light-theme .glass-panel {
+background: rgba(255, 255, 255, 0.7);
+border-color: rgba(0, 119, 182, 0.2);
+color: #102a43;
+}
+.light-theme .text-primary { color: #102a43; }
+.light-theme .text-secondary { color: #243b53; }
+.light-theme .accent-text { color: #0077b6; }
+.light-theme .btn-primary {
+background: linear-gradient(135deg, #0077b6 0%, #005f8f 100%);
+color: white;
+}
+.light-theme .btn-secondary {
+border-color: #0077b6;
+color: #0077b6;
+}
+.light-theme .btn-secondary:hover {
+background: rgba(0, 119, 182, 0.1);
+}
+.glass-panel {
+background: rgba(10, 25, 47, 0.6);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border: 1px solid rgba(0, 229, 255, 0.2);
+box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+.logo-3d {
+perspective: 1000px;
+display: inline-block;
+}
+.logo-text-3d {
+display: block;
+font-family: 'Orbitron', sans-serif;
+font-weight: 900;
+font-size: 1.5rem;
+color: #fff;
+text-transform: uppercase;
+text-shadow:
+1px 1px 0px #0091ea,
+2px 2px 0px #0077b6,
+3px 3px 0px #005f8f,
+4px 4px 5px rgba(0,0,0,0.5);
+transform: rotateX(10deg);
+transition: transform 0.3s ease;
+}
+.logo-container:hover .logo-text-3d {
+transform: rotateX(0deg) scale(1.05);
+}
+.light-theme .logo-text-3d {
+color: #102a43;
+text-shadow:
+1px 1px 0px #90caf9,
+2px 2px 0px #64b5f6,
+3px 3px 5px rgba(0,0,0,0.2);
+}
+[data-tooltip] {
+position: relative;
+cursor: pointer;
+}
+[data-tooltip]:hover::after {
+opacity: 1;
+transform: translateY(0);
+visibility: visible;
+}
+[data-tooltip]::after {
+content: attr(data-tooltip);
+position: absolute;
+bottom: 100%;
+left: 50%;
+transform: translateX(-50%) translateY(10px);
+background: rgba(0, 0, 0, 0.9);
+color: #fff;
+padding: 8px 12px;
+border-radius: 6px;
+font-size: 0.8rem;
+white-space: nowrap;
+opacity: 0;
+visibility: hidden;
+transition: all 0.3s ease;
+border: 1px solid #00e5ff;
+z-index: 50;
+pointer-events: none;
+box-shadow: 0 4px 15px rgba(0, 229, 255, 0.3);
+}
+.slider-mask {
+mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+-webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+}
+.brand-logo {
+font-family: 'Orbitron', sans-serif;
+font-weight: 700;
+font-size: 1.5rem;
+color: inherit;
+opacity: 0.6;
+transition: opacity 0.3s, transform 0.3s;
+white-space: nowrap;
+}
+.brand-logo:hover {
+opacity: 1;
+transform: scale(1.1);
+color: #00e5ff;
+}
+.light-theme .brand-logo:hover {
+color: #0077b6;
+}
+.bg-image {
+background-image: url('https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/13a4e64c7-586a-4d88-9130-69847d525646.png');
+background-size: cover;
+background-position: center;
+background-attachment: fixed;
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+z-index: -2;
+filter: brightness(0.7);
+}
+.light-theme .bg-image {
+filter: brightness(1.1) contrast(0.9);
+}
+.bg-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background: radial-gradient(circle at center, transparent 0%, #050b14 120%);
+z-index: -1;
+pointer-events: none;
+}
+.light-theme .bg-overlay {
+background: radial-gradient(circle at center, transparent 0%, #f0f4f8 120%);
+}
+.mobile-menu {
+transform: translateX(100%);
+transition: transform 0.3s ease-in-out;
+}
+.mobile-menu.active {
+transform: translateX(0);
+}
+<\/style>
+</head>
+<body class="antialiased min-h-screen flex flex-col relative">
+<div class="bg-image"></div>
+<div class="bg-overlay"></div>
+<header class="fixed top-0 w-full z-50 transition-all duration-300" id="main-header">
+<div class="glass-panel border-b-0 rounded-b-2xl mx-4 mt-4 px-6 py-4 flex justify-between items-center shadow-lg">
+<a href="#" class="logo-container flex items-center gap-3 group" data-tooltip="На главную">
+<div class="w-12 h-12 relative animate-float">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/1b9df631a-acd4-4014-a887-2c19642b2052.png" alt="Logo" class="w-full h-full object-contain drop-shadow-lg">
+<div class="absolute inset-0 bg-primary opacity-20 blur-xl rounded-full animate-pulse"></div>
+</div>
+<div class="logo-3d">
+<span class="logo-text-3d">MasterCool</span>
+<span class="text-[0.6rem] tracking-[0.3em] text-primary block text-center -mt-1 font-bold">КУРСК</span>
+</div>
+</a>
+<nav class="hidden md:flex items-center gap-8">
+<a href="#" class="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors relative group">
+Главная
+<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+</a>
+<a href="#services" class="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors relative group">
+Услуги
+<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+</a>
+<a href="#brands" class="text-sm font-bold uppercase tracking-wider hover:text-primary transition-colors relative group">
+Бренды
+<span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all group-hover:w-full"></span>
+</a>
+</nav>
+<div class="flex items-center gap-4">
+<button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition-colors" data-tooltip="Переключить тему">
+<svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+</svg>
+</button>
+<a href="tel:+79513265045" class="hidden md:inline-flex items-center gap-2 bg-primary/20 border border-primary text-primary px-4 py-2 rounded-full font-bold hover:bg-primary hover:text-black transition-all duration-300 shadow-[0_0_15px_rgba(0,229,255,0.3)]" data-tooltip="Позвонить сейчас">
+<svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-2.2 2.2a15.053 15.053 0 01-6.59-6.59l2.2-2.21a.96.96 0 00.25-1.01A11.36 11.36 0 018.59 3.99C8.59 3.44 8.14 3 7.59 3H4.03C3.48 3 3 3.44 3 3.99 3 13.28 10.73 21 20.01 21c.55 0 .99-.45.99-.99v-3.63c0-.55-.45-.99-.99-.99z"/></svg>
+<span>+7 951 326 50 45</span>
+</a>
+<button id="mobile-menu-btn" class="md:hidden text-primary">
+<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+</button>
+</div>
+</div>
+</header>
+<div id="mobile-menu" class="mobile-menu fixed inset-0 z-40 glass-panel md:hidden flex flex-col items-center justify-center gap-8">
+<button id="close-menu-btn" class="absolute top-6 right-6 text-primary">
+<svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+</button>
+<a href="#" class="text-2xl font-display font-bold hover:text-primary">Главная</a>
+<a href="#services" class="text-2xl font-display font-bold hover:text-primary">Услуги</a>
+<a href="#brands" class="text-2xl font-display font-bold hover:text-primary">Бренды</a>
+<a href="tel:+79513265045" class="text-2xl font-display font-bold text-primary animate-pulse">Позвонить</a>
+</div>
+<main class="flex-grow flex items-center justify-center px-4 pt-32 pb-20 relative z-10">
+<div class="max-w-5xl w-full glass-panel rounded-3xl p-8 md:p-12 relative overflow-hidden group">
+<div class="absolute -top-20 -right-20 w-64 h-64 bg-primary/20 rounded-full blur-3xl group-hover:bg-primary/30 transition-all duration-700"></div>
+<div class="absolute -bottom-20 -left-20 w-64 h-64 bg-secondary/20 rounded-full blur-3xl group-hover:bg-secondary/30 transition-all duration-700"></div>
+<div class="relative z-10 text-center">
+<h1 class="font-display text-4xl md:text-6xl font-black mb-6 leading-tight">
+Ремонт <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary to-secondary">Холодильников</span><br>
+в Курске
+</h1>
+<div class="w-24 h-1 bg-gradient-to-r from-primary to-secondary mx-auto mb-8 rounded-full"></div>
+<p class="text-lg md:text-xl text-secondary mb-8 max-w-3xl mx-auto leading-relaxed">
+Профессиональный ремонт бытовых холодильников всех марок, в том числе с
+<span class="text-primary font-bold">электронным управлением</span>,
+<span class="text-primary font-bold">инверторным компрессором</span> и
+<span class="text-primary font-bold">инверторным линейным компрессором</span>.
+<br class="hidden md:block">
+Также выполняем ремонт торгового холодильного оборудования: витрины, холодильные камеры, моноблоки.
+</p>
+<div class="flex flex-col md:flex-row gap-4 justify-center items-center mt-10">
+<a href="tel:+79513265045" class="btn-primary w-full md:w-auto px-8 py-4 rounded-xl font-bold text-lg uppercase tracking-wider shadow-lg hover:shadow-primary/50 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-3" data-tooltip="Вызвать мастера">
+<svg class="w-6 h-6 animate-pulse" fill="currentColor" viewBox="0 0 24 24"><path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 00-1.01.24l-2.2 2.2a15.053 15.053 0 01-6.59-6.59l2.2-2.21a.96.96 0 00.25-1.01A11.36 11.36 0 018.59 3.99C8.59 3.44 8.14 3 7.59 3H4.03C3.48 3 3 3.44 3 3.99 3 13.28 10.73 21 20.01 21c.55 0 .99-.45.99-.99v-3.63c0-.55-.45-.99-.99-.99z"/></svg>
+Позвонить
+</a>
+<div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+<a href="http://mastercool-kursk.ru/" target="_blank" class="btn-secondary w-full sm:w-auto px-6 py-4 rounded-xl font-bold uppercase tracking-wider border-2 hover:-translate-y-1 transition-all duration-300 text-center" data-tooltip="Основной сайт">
+Сайт 1
+</a>
+<a href="http://холодильщик-курск.рф" target="_blank" class="btn-secondary w-full sm:w-auto px-6 py-4 rounded-xl font-bold uppercase tracking-wider border-2 hover:-translate-y-1 transition-all duration-300 text-center" data-tooltip="Альтернативный сайт">
+Сайт 2
+</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+<section id="brands" class="w-full py-10 glass-panel border-l-0 border-r-0 border-y border-white/10 overflow-hidden relative z-10">
+<div class="absolute inset-0 bg-gradient-to-r from-dark via-transparent to-dark z-20 pointer-events-none opacity-80"></div>
+<div class="slider-mask flex gap-16 w-max animate-scroll">
+<div class="brand-logo">BOSCH</div>
+<div class="brand-logo">SAMSUNG</div>
+<div class="brand-logo">LG</div>
+<div class="brand-logo">MIELE</div>
+<div class="brand-logo">LIEBHERR</div>
+<div class="brand-logo">INDESIT</div>
+<div class="brand-logo">ATLANT</div>
+<div class="brand-logo">BEKO</div>
+<div class="brand-logo">ELECTROLUX</div>
+<div class="brand-logo">WHIRLPOOL</div>
+<div class="brand-logo">BOSCH</div>
+<div class="brand-logo">SAMSUNG</div>
+<div class="brand-logo">LG</div>
+<div class="brand-logo">MIELE</div>
+<div class="brand-logo">LIEBHERR</div>
+<div class="brand-logo">INDESIT</div>
+<div class="brand-logo">ATLANT</div>
+<div class="brand-logo">BEKO</div>
+<div class="brand-logo">ELECTROLUX</div>
+<div class="brand-logo">WHIRLPOOL</div>
+</div>
+</section>
+<footer class="py-6 text-center text-sm text-secondary relative z-10 glass-panel border-t-0 rounded-t-2xl mt-auto">
+<p>&copy; 2023 MasterCool Курск. Все права защищены.</p>
+</footer>
+<script>
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'light') {
+body.classList.add('light-theme');
+}
+themeToggle.addEventListener('click', () => {
+body.classList.toggle('light-theme');
+const isLight = body.classList.contains('light-theme');
+localStorage.setItem('theme', isLight ? 'light' : 'dark');
+themeToggle.classList.add('rotate-180');
+setTimeout(() => themeToggle.classList.remove('rotate-180'), 300);
+});
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const closeMenuBtn = document.getElementById('close-menu-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+const mobileLinks = mobileMenu.querySelectorAll('a');
+function toggleMenu() {
+mobileMenu.classList.toggle('active');
+}
+mobileMenuBtn.addEventListener('click', toggleMenu);
+closeMenuBtn.addEventListener('click', toggleMenu);
+mobileLinks.forEach(link => {
+link.addEventListener('click', toggleMenu);
+});
+const header = document.getElementById('main-header');
+window.addEventListener('scroll', () => {
+if (window.scrollY > 50) {
+header.classList.add('py-2');
+header.classList.remove('py-4');
+} else {
+header.classList.add('py-4');
+header.classList.remove('py-2');
+}
+});
+<\/script>
+</body>
+</html>`,
+`<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MasterCool Курск | Ремонт холодильников премиум класса</title>
+<meta name="description" content="Профессиональный ремонт холодильников в Курске. Инверторные компрессоры, электронное управление, торговое оборудование.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg-color: #020617;
+--text-primary: #f8fafc;
+--text-secondary: #94a3b8;
+--accent-color: #06b6d4;
+--accent-glow: rgba(6, 182, 212, 0.5);
+--glass-bg: rgba(15, 23, 42, 0.6);
+--glass-border: rgba(6, 182, 212, 0.2);
+--card-bg: rgba(30, 41, 59, 0.4);
+--button-primary: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+--button-text: #ffffff;
+--shadow-lg: 0 10px 40px -10px rgba(6, 182, 212, 0.3);
+--font-display: 'Orbitron', sans-serif;
+--font-body: 'Rajdhani', sans-serif;
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="light"] {
+--bg-color: #f0f9ff;
+--text-primary: #0f172a;
+--text-secondary: #475569;
+--accent-color: #0284c7;
+--accent-glow: rgba(2, 132, 199, 0.3);
+--glass-bg: rgba(255, 255, 255, 0.7);
+--glass-border: rgba(2, 132, 199, 0.1);
+--card-bg: rgba(255, 255, 255, 0.8);
+--button-primary: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+--button-text: #ffffff;
+--shadow-lg: 0 10px 40px -10px rgba(2, 132, 199, 0.2);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; outline: none; }
+body {
+font-family: var(--font-body);
+background-color: var(--bg-color);
+color: var(--text-primary);
+overflow-x: hidden;
+transition: background-color 0.5s ease, color 0.5s ease;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+position: relative;
+}
+.video-bg {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+z-index: -2; overflow: hidden;
+}
+.video-bg img {
+width: 100%; height: 100%;
+object-fit: cover;
+animation: kenBurns 20s infinite alternate;
+filter: brightness(0.7) contrast(1.1);
+}
+@keyframes kenBurns {
+0% { transform: scale(1) translate(0, 0); }
+100% { transform: scale(1.1) translate(-1%, -1%); }
+}
+.grid-overlay {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background-image:
+linear-gradient(var(--glass-border) 1px, transparent 1px),
+linear-gradient(90deg, var(--glass-border) 1px, transparent 1px);
+background-size: 50px 50px;
+opacity: 0.1;
+z-index: -1;
+pointer-events: none;
+}
+.particle {
+position: absolute;
+background: var(--accent-color);
+border-radius: 50%;
+opacity: 0;
+pointer-events: none;
+box-shadow: 0 0 10px var(--accent-color);
+}
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1rem 5%;
+background: rgba(2, 6, 23, 0.3);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border-bottom: 1px solid var(--glass-border);
+position: sticky;
+top: 0;
+z-index: 100;
+}
+.logo-wrapper {
+display: flex;
+align-items: center;
+gap: 15px;
+cursor: pointer;
+perspective: 1000px;
+}
+.logo-3d {
+width: 60px; height: 60px;
+border-radius: 50%;
+background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent);
+display: flex;
+align-items: center;
+justify-content: center;
+box-shadow: 0 0 20px var(--accent-glow);
+animation: floatLogo 4s ease-in-out infinite;
+position: relative;
+overflow: hidden;
+}
+.logo-3d img {
+width: 80%; height: 80%;
+object-fit: contain;
+filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+animation: spinLogo 10s linear infinite;
+}
+@keyframes floatLogo {
+0%, 100% { transform: translateY(0) rotateX(0deg); }
+50% { transform: translateY(-5px) rotateX(10deg); }
+}
+@keyframes spinLogo {
+from { transform: rotate(0deg); }
+to { transform: rotate(360deg); }
+}
+.brand-name {
+display: flex;
+flex-direction: column;
+}
+.brand-name h1 {
+font-family: var(--font-display);
+font-size: 1.5rem;
+font-weight: 900;
+line-height: 1;
+background: linear-gradient(90deg, #fff, var(--accent-color));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+text-shadow: 0 0 20px var(--accent-glow);
+}
+.brand-name span {
+font-size: 0.8rem;
+letter-spacing: 4px;
+color: var(--accent-color);
+font-weight: 700;
+text-transform: uppercase;
+}
+nav ul {
+display: flex;
+gap: 30px;
+list-style: none;
+}
+nav a {
+color: var(--text-primary);
+text-decoration: none;
+font-weight: 600;
+text-transform: uppercase;
+font-size: 1rem;
+position: relative;
+padding: 5px 0;
+transition: var(--transition);
+}
+nav a::after {
+content: '';
+position: absolute;
+bottom: 0; left: 0;
+width: 0; height: 2px;
+background: var(--accent-color);
+transition: width 0.3s ease;
+box-shadow: 0 0 10px var(--accent-color);
+}
+nav a:hover::after { width: 100%; }
+.theme-btn {
+background: transparent;
+border: 1px solid var(--glass-border);
+color: var(--text-primary);
+padding: 8px 12px;
+border-radius: 8px;
+cursor: pointer;
+transition: var(--transition);
+display: flex;
+align-items: center;
+justify-content: center;
+}
+.theme-btn:hover {
+background: var(--glass-bg);
+border-color: var(--accent-color);
+box-shadow: 0 0 15px var(--accent-glow);
+}
+main {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 4rem 5%;
+position: relative;
+z-index: 1;
+}
+.hero-container {
+max-width: 1000px;
+width: 100%;
+display: grid;
+grid-template-columns: 1fr;
+gap: 2rem;
+}
+.glass-card {
+background: var(--glass-bg);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border: 1px solid var(--glass-border);
+border-radius: 24px;
+padding: 3rem;
+box-shadow: var(--shadow-lg);
+position: relative;
+overflow: hidden;
+transform: translateY(20px);
+opacity: 0;
+animation: slideUp 0.8s forwards 0.2s;
+}
+.glass-card::before {
+content: '';
+position: absolute;
+top: 0; left: -100%;
+width: 100%; height: 100%;
+background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+animation: shimmer 3s infinite;
+}
+@keyframes shimmer { 100% { left: 100%; } }
+@keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
+.hero-title {
+font-family: var(--font-display);
+font-size: 3rem;
+line-height: 1.1;
+margin-bottom: 1.5rem;
+text-align: center;
+}
+.hero-title span {
+color: var(--accent-color);
+text-shadow: 0 0 20px var(--accent-glow);
+}
+.hero-text {
+font-size: 1.25rem;
+line-height: 1.7;
+color: var(--text-secondary);
+text-align: center;
+margin-bottom: 3rem;
+}
+.highlight {
+color: var(--text-primary);
+font-weight: 600;
+border-bottom: 1px solid var(--accent-color);
+}
+.cta-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 1.5rem;
+justify-items: center;
+}
+.btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+padding: 16px 32px;
+font-family: var(--font-display);
+font-weight: 700;
+text-transform: uppercase;
+text-decoration: none;
+border-radius: 12px;
+transition: var(--transition);
+position: relative;
+overflow: hidden;
+width: 100%;
+max-width: 350px;
+cursor: pointer;
+border: none;
+font-size: 1rem;
+}
+.btn-primary {
+background: var(--button-primary);
+color: var(--button-text);
+box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+}
+.btn-primary:hover {
+transform: translateY(-3px) scale(1.02);
+box-shadow: 0 10px 25px rgba(6, 182, 212, 0.6);
+}
+.btn-secondary {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid var(--glass-border);
+color: var(--text-primary);
+backdrop-filter: blur(4px);
+}
+.btn-secondary:hover {
+background: rgba(6, 182, 212, 0.1);
+border-color: var(--accent-color);
+transform: translateY(-3px);
+box-shadow: 0 0 15px var(--accent-glow);
+}
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+content: attr(data-tooltip);
+position: absolute;
+bottom: 110%; left: 50%;
+transform: translateX(-50%) translateY(5px);
+background: rgba(0, 0, 0, 0.9);
+color: #fff;
+padding: 8px 12px;
+border-radius: 6px;
+font-size: 0.8rem;
+white-space: nowrap;
+opacity: 0;
+pointer-events: none;
+transition: all 0.3s ease;
+border: 1px solid var(--accent-color);
+z-index: 50;
+font-family: var(--font-body);
+font-weight: 400;
+text-transform: none;
+}
+[data-tooltip]:hover::after {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+.brands-section {
+width: 100%;
+background: var(--glass-bg);
+backdrop-filter: blur(10px);
+padding: 2rem 0;
+border-top: 1px solid var(--glass-border);
+border-bottom: 1px solid var(--glass-border);
+overflow: hidden;
+margin-top: auto;
+position: relative;
+z-index: 2;
+}
+.slider-track {
+display: flex;
+width: calc(200px * 14);
+animation: scroll 40s linear infinite;
+}
+.brand-item {
+width: 200px;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 0 20px;
+opacity: 0.5;
+transition: opacity 0.3s;
+filter: grayscale(100%);
+}
+.brand-item:hover {
+opacity: 1;
+filter: grayscale(0%);
+}
+.brand-logo {
+font-family: var(--font-display);
+font-size: 1.5rem;
+font-weight: 700;
+color: var(--text-primary);
+text-transform: uppercase;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.brand-logo svg {
+width: 32px; height: 32px;
+fill: var(--accent-color);
+}
+@keyframes scroll {
+0% { transform: translateX(0); }
+100% { transform: translateX(calc(-200px * 7)); }
+}
+.mobile-menu-btn {
+display: none;
+background: none;
+border: none;
+color: var(--text-primary);
+font-size: 1.5rem;
+cursor: pointer;
+}
+@media (max-width: 768px) {
+header { padding: 1rem; }
+nav { display: none; }
+.mobile-menu-btn { display: block; }
+.hero-title { font-size: 2rem; }
+.glass-card { padding: 2rem 1.5rem; }
+.cta-grid { grid-template-columns: 1fr; }
+.logo-3d { width: 45px; height: 45px; }
+.brand-name h1 { font-size: 1.2rem; }
+.brand-name span { font-size: 0.6rem; }
+}
+</style>
+</head>
+<body>
+<div class="video-bg">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/1a195c1d2-c345-4469-9c17-484b5ac154b9.png" alt="Cooling Technology Background">
+</div>
+<div class="grid-overlay"></div>
+<div id="particles-container"></div>
+<header>
+<div class="logo-wrapper" data-tooltip="На главную">
+<div class="logo-3d">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/11703a062-75d9-4649-9c60-80da011c8690.png" alt="MasterCool 3D Logo">
+</div>
+<div class="brand-name">
+<h1>MasterCool</h1>
+<span>Курск</span>
+</div>
+</div>
+<nav>
+<ul>
+<li><a href="#" data-tooltip="Основная страница">Главная</a></li>
+<li><a href="#" data-tooltip="Наши услуги">Услуги</a></li>
+<li><a href="#" data-tooltip="Бренды оборудования">Бренды</a></li>
+</ul>
+</nav>
+<div style="display: flex; gap: 15px; align-items: center;">
+<button class="theme-btn" id="theme-toggle" data-tooltip="Переключить тему (Светлая/Темная)">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+</button>
+<button class="mobile-menu-btn">☰</button>
+</div>
+</header>
+<main>
+<div class="hero-container">
+<div class="glass-card">
+<h2 class="hero-title">
+Ремонт <span>Холодильников</span><br>в Курске
+</h2>
+<p class="hero-text">
+Профессиональный ремонт бытовых холодильников всех марок, в том числе с
+<span class="highlight">электронным управлением</span>,
+<span class="highlight">инверторным компрессором</span> и
+<span class="highlight">инверторным линейным компрессором</span>.
+<br><br>
+Также выполняем ремонт торгового холодильного оборудования: витрины, холодильные камеры, моноблоки.
+</p>
+<div class="cta-grid">
+<a href="tel:+79513265045" class="btn btn-primary" data-tooltip="Вызов мастера на дом">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+Позвонить +7 951 326 50 45
+</a>
+<a href="http://mastercool-kursk.ru/" target="_blank" class="btn btn-secondary" data-tooltip="Официальный сайт компании">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+mastercool-kursk.ru
+</a>
+<a href="http://холодильщик-курск.рф" target="_blank" class="btn btn-secondary" data-tooltip="Альтернативный портал">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+холодильник-курск.рф
+</a>
+</div>
+</div>
+</div>
+</main>
+<div class="brands-section">
+<div class="slider-track">
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg> LG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> MIELE</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg> INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ATLANT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg> LG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> MIELE</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg> INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ATLANT</div></div>
+</div>
+</div>
+<script>
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+body.setAttribute('data-theme', savedTheme);
+} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+body.setAttribute('data-theme', 'light');
+}
+themeToggle.addEventListener('click', () => {
+const currentTheme = body.getAttribute('data-theme');
+const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+body.setAttribute('data-theme', newTheme);
+localStorage.setItem('theme', newTheme);
+themeToggle.style.transform = 'rotate(360deg) scale(1.1)';
+setTimeout(() => themeToggle.style.transform = 'rotate(0deg) scale(1)', 300);
+});
+function createParticles() {
+const container = document.getElementById('particles-container');
+const particleCount = 30;
+for (let i = 0; i < particleCount; i++) {
+const particle = document.createElement('div');
+particle.classList.add('particle');
+const size = Math.random() * 4 + 1;
+const left = Math.random() * 100;
+const duration = Math.random() * 15 + 10;
+const delay = Math.random() * 5;
+const top = Math.random() * 100;
+particle.style.width = size + 'px';
+particle.style.height = size + 'px';
+particle.style.left = left + '%';
+particle.style.top = top + '%';
+particle.style.animation = 'floatUp ' + duration + 's linear infinite';
+particle.style.animationDelay = '-' + delay + 's';
+container.appendChild(particle);
+}
+}
+const styleSheet = document.createElement("style");
+styleSheet.innerText = '@keyframes floatUp { 0% { transform: translateY(0) scale(0); opacity: 0; } 20% { opacity: 0.6; } 80% { opacity: 0.6; } 100% { transform: translateY(-100vh) scale(1); opacity: 0; } }';
+document.head.appendChild(styleSheet);
+document.addEventListener('DOMContentLoaded', () => {
+createParticles();
+const card = document.querySelector('.glass-card');
+if(card) {
+card.addEventListener('mousemove', (e) => {
+const rect = card.getBoundingClientRect();
+const x = e.clientX - rect.left;
+const y = e.clientY - rect.top;
+const centerX = rect.width / 2;
+const centerY = rect.height / 2;
+const rotateX = ((y - centerY) / centerY) * -5;
+const rotateY = ((x - centerX) / centerX) * 5;
+card.style.transform = 'perspective(1000px) rotateX(' + rotateX + 'deg) rotateY(' + rotateY + 'deg)';
+});
+card.addEventListener('mouseleave', () => {
+card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+});
+}
+});
+<\/script>
+</body>
+</html>`,
+`<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MasterCool Курск - Ремонт холодильников</title>
+<meta name="description" content="Профессиональный ремонт бытовых и торговых холодильников в Курске. Инверторные компрессоры, электронное управление.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg-color: #050b14;
+--text-primary: #e0f7fa;
+--text-secondary: #b2ebf2;
+--accent-color: #00e5ff;
+--accent-glow: rgba(0, 229, 255, 0.6);
+--glass-bg: rgba(10, 25, 47, 0.75);
+--glass-border: rgba(0, 229, 255, 0.3);
+--card-bg: rgba(16, 33, 60, 0.6);
+--button-bg: linear-gradient(135deg, #00e5ff 0%, #0091ea 100%);
+--button-text: #000;
+--shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+--transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+[data-theme="light"] {
+--bg-color: #f0f4f8;
+--text-primary: #102a43;
+--text-secondary: #243b53;
+--accent-color: #0077b6;
+--accent-glow: rgba(0, 119, 182, 0.4);
+--glass-bg: rgba(255, 255, 255, 0.85);
+--glass-border: rgba(0, 119, 182, 0.2);
+--card-bg: rgba(255, 255, 255, 0.9);
+--button-bg: linear-gradient(135deg, #0077b6 0%, #005f8f 100%);
+--button-text: #fff;
+--shadow: 0 8px 32px 0 rgba(0, 119, 182, 0.15);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+font-family: 'Rajdhani', sans-serif;
+background-color: var(--bg-color);
+color: var(--text-primary);
+overflow-x: hidden;
+transition: var(--transition);
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+.video-background {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+z-index: -1; overflow: hidden;
+}
+.video-background img {
+width: 100%; height: 100%;
+object-fit: cover;
+animation: kenBurns 30s infinite alternate;
+filter: brightness(0.6) contrast(1.1);
+}
+@keyframes kenBurns {
+0% { transform: scale(1) translate(0, 0); }
+100% { transform: scale(1.1) translate(-2%, -2%); }
+}
+.particle {
+position: absolute;
+background: var(--accent-color);
+border-radius: 50%;
+opacity: 0.3;
+animation: floatUp linear infinite;
+pointer-events: none;
+}
+@keyframes floatUp {
+0% { transform: translateY(100vh) scale(0); opacity: 0; }
+50% { opacity: 0.5; }
+100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1rem 5%;
+background: var(--glass-bg);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border-bottom: 1px solid var(--glass-border);
+position: sticky;
+top: 0;
+z-index: 1000;
+}
+.logo-container {
+display: flex;
+align-items: center;
+gap: 15px;
+cursor: pointer;
+perspective: 1000px;
+}
+.logo-wrapper {
+width: 50px; height: 50px;
+position: relative;
+transform-style: preserve-3d;
+animation: rotateLogo 6s infinite linear;
+}
+.logo-icon {
+width: 100%; height: 100%;
+object-fit: contain;
+filter: drop-shadow(0 0 10px var(--accent-glow));
+}
+@keyframes rotateLogo {
+0% { transform: rotateY(0deg) rotateX(10deg); }
+50% { transform: rotateY(180deg) rotateX(-10deg); }
+100% { transform: rotateY(360deg) rotateX(10deg); }
+}
+.logo-text {
+font-family: 'Orbitron', sans-serif;
+font-size: 1.5rem;
+font-weight: 900;
+background: linear-gradient(90deg, var(--text-primary), var(--accent-color));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+text-transform: uppercase;
+letter-spacing: 2px;
+position: relative;
+}
+.logo-text::after {
+content: 'КУРСК';
+display: block;
+font-size: 0.7rem;
+letter-spacing: 4px;
+color: var(--accent-color);
+-webkit-text-fill-color: var(--accent-color);
+margin-top: -5px;
+}
+nav ul {
+display: flex;
+list-style: none;
+gap: 2rem;
+}
+nav a {
+text-decoration: none;
+color: var(--text-secondary);
+font-weight: 500;
+text-transform: uppercase;
+letter-spacing: 1px;
+position: relative;
+transition: var(--transition);
+}
+nav a::after {
+content: '';
+position: absolute;
+bottom: -5px; left: 0;
+width: 0; height: 2px;
+background: var(--accent-color);
+transition: var(--transition);
+}
+nav a:hover { color: var(--accent-color); }
+nav a:hover::after { width: 100%; }
+.theme-switch {
+background: transparent;
+border: 2px solid var(--accent-color);
+color: var(--accent-color);
+padding: 8px 16px;
+border-radius: 20px;
+cursor: pointer;
+font-family: 'Rajdhani', sans-serif;
+font-weight: 700;
+transition: var(--transition);
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.theme-switch:hover {
+background: var(--accent-color);
+color: var(--bg-color);
+box-shadow: 0 0 15px var(--accent-glow);
+}
+main {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 4rem 5%;
+text-align: center;
+position: relative;
+}
+.hero-card {
+background: var(--card-bg);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border: 1px solid var(--glass-border);
+border-radius: 24px;
+padding: 3rem;
+max-width: 900px;
+width: 100%;
+box-shadow: var(--shadow);
+transform: translateY(20px);
+opacity: 0;
+animation: slideUp 0.8s forwards 0.3s;
+position: relative;
+overflow: hidden;
+}
+.hero-card::before {
+content: '';
+position: absolute;
+top: 0; left: -100%;
+width: 100%; height: 100%;
+background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+animation: shimmer 3s infinite;
+}
+@keyframes shimmer { 100% { left: 100%; } }
+@keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
+h1 {
+font-family: 'Orbitron', sans-serif;
+font-size: 2.5rem;
+margin-bottom: 1.5rem;
+line-height: 1.2;
+color: var(--text-primary);
+}
+.highlight {
+color: var(--accent-color);
+text-shadow: 0 0 10px var(--accent-glow);
+}
+p.description {
+font-size: 1.2rem;
+line-height: 1.6;
+color: var(--text-secondary);
+margin-bottom: 2.5rem;
+max-width: 800px;
+margin-left: auto;
+margin-right: auto;
+}
+.cta-container {
+display: flex;
+flex-wrap: wrap;
+gap: 20px;
+justify-content: center;
+margin-top: 2rem;
+}
+.btn {
+position: relative;
+padding: 16px 32px;
+font-size: 1.1rem;
+font-weight: 700;
+text-decoration: none;
+border-radius: 12px;
+transition: var(--transition);
+display: inline-flex;
+align-items: center;
+gap: 10px;
+text-transform: uppercase;
+letter-spacing: 1px;
+overflow: hidden;
+border: none;
+cursor: pointer;
+}
+.btn-primary {
+background: var(--button-bg);
+color: var(--button-text);
+box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+}
+.btn-primary:hover {
+transform: translateY(-3px);
+box-shadow: 0 8px 25px rgba(0, 229, 255, 0.6);
+}
+.btn-secondary {
+background: transparent;
+border: 2px solid var(--accent-color);
+color: var(--accent-color);
+}
+.btn-secondary:hover {
+background: rgba(0, 229, 255, 0.1);
+transform: translateY(-3px);
+box-shadow: 0 0 15px var(--accent-glow);
+}
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+content: attr(data-tooltip);
+position: absolute;
+bottom: 110%; left: 50%;
+transform: translateX(-50%) translateY(10px);
+background: rgba(0, 0, 0, 0.9);
+color: #fff;
+padding: 8px 12px;
+border-radius: 6px;
+font-size: 0.85rem;
+white-space: nowrap;
+opacity: 0;
+pointer-events: none;
+transition: all 0.3s ease;
+border: 1px solid var(--accent-color);
+z-index: 100;
+}
+[data-tooltip]:hover::after {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+.brands-section {
+width: 100%;
+background: var(--glass-bg);
+backdrop-filter: blur(10px);
+padding: 2rem 0;
+border-top: 1px solid var(--glass-border);
+border-bottom: 1px solid var(--glass-border);
+overflow: hidden;
+margin-top: auto;
+}
+.slider-track {
+display: flex;
+width: calc(250px * 14);
+animation: scroll 40s linear infinite;
+}
+.brand-item {
+width: 250px;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 0 20px;
+opacity: 0.7;
+transition: opacity 0.3s;
+}
+.brand-item:hover { opacity: 1; }
+.brand-logo {
+font-family: 'Orbitron', sans-serif;
+font-size: 1.5rem;
+font-weight: 700;
+color: var(--text-secondary);
+text-transform: uppercase;
+letter-spacing: 2px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.brand-logo svg {
+width: 30px; height: 30px;
+fill: var(--accent-color);
+}
+@keyframes scroll {
+0% { transform: translateX(0); }
+100% { transform: translateX(calc(-250px * 7)); }
+}
+@media (max-width: 768px) {
+h1 { font-size: 1.8rem; }
+.hero-card { padding: 2rem 1.5rem; }
+.logo-text { font-size: 1.2rem; }
+.cta-container { flex-direction: column; width: 100%; }
+.btn { width: 100%; justify-content: center; }
+.slider-track { animation-duration: 20s; }
+nav { display: none; }
+}
+</style>
+</head>
+<body>
+<div class="video-background" id="bg-container">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/13915f5c3-bc26-4edf-89b1-ea106e4f9bd8.png" alt="Cooling Technology Background">
+</div>
+<header>
+<div class="logo-container" data-tooltip="Главная страница">
+<div class="logo-wrapper">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/1da890e30-2a80-47fb-88e3-a441e27880dd.png" alt="MasterCool Logo" class="logo-icon">
+</div>
+<div class="logo-text">MasterCool</div>
+</div>
+<nav>
+<ul>
+<li><a href="#" data-tooltip="На главную">Главная</a></li>
+<li><a href="#" data-tooltip="Наши услуги">Услуги</a></li>
+<li><a href="#" data-tooltip="Бренды оборудования">Бренды</a></li>
+</ul>
+</nav>
+<button class="theme-switch" id="theme-toggle" data-tooltip="Переключить тему">
+<span>🌓 Тема</span>
+</button>
+</header>
+<main>
+<div class="hero-card">
+<h1>Ремонт <span class="highlight">Холодильников</span><br>в Курске</h1>
+<p class="description">
+Ремонт бытовых холодильников в Курске всех марок, в том числе с
+<span class="highlight">электронным управлением</span>,
+<span class="highlight">инверторным компрессором</span> и
+<span class="highlight">инверторным линейным компрессором</span>.
+<br><br>
+Ремонт торгового холодильного оборудования (витрины, холодильные камеры).
+</p>
+<div class="cta-container">
+<a href="tel:+79513265045" class="btn btn-primary" data-tooltip="Позвонить мастеру прямо сейчас">
+📞 Позвонить +7 951 326 50 45
+</a>
+<a href="http://mastercool-kursk.ru/" target="_blank" class="btn btn-secondary" data-tooltip="Перейти на основной сайт">
+🌐 mastercool-kursk.ru
+</a>
+<a href="http://холодильщик-курск.рф" target="_blank" class="btn btn-secondary" data-tooltip="Перейти на альтернативный сайт">
+🌐 холодильник-курск.рф
+</a>
+</div>
+</div>
+</main>
+<div class="brands-section">
+<div class="slider-track">
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg> LG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> MIELE</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg> INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ATLANT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg> LG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> MIELE</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg> INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ATLANT</div></div>
+</div>
+</div>
+<script>
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+body.setAttribute('data-theme', savedTheme);
+} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+body.setAttribute('data-theme', 'light');
+}
+themeToggle.addEventListener('click', () => {
+const currentTheme = body.getAttribute('data-theme');
+const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+body.setAttribute('data-theme', newTheme);
+localStorage.setItem('theme', newTheme);
+themeToggle.style.transform = 'scale(0.95)';
+setTimeout(() => themeToggle.style.transform = 'scale(1)', 150);
+});
+function createParticles() {
+const container = document.getElementById('bg-container');
+const particleCount = 20;
+for (let i = 0; i < particleCount; i++) {
+const particle = document.createElement('div');
+particle.classList.add('particle');
+const size = Math.random() * 5 + 2;
+const left = Math.random() * 100;
+const duration = Math.random() * 10 + 10;
+const delay = Math.random() * 5;
+particle.style.width = size + 'px';
+particle.style.height = size + 'px';
+particle.style.left = left + '%';
+particle.style.animationDuration = duration + 's';
+particle.style.animationDelay = delay + 's';
+container.appendChild(particle);
+}
+}
+document.addEventListener('DOMContentLoaded', () => {
+createParticles();
+const logoText = document.querySelector('.logo-text');
+logoText.addEventListener('mouseenter', () => {
+logoText.style.textShadow = '0 0 20px var(--accent-glow)';
+});
+logoText.addEventListener('mouseleave', () => {
+logoText.style.textShadow = 'none';
+});
+});
+<\/script>
+</body>
+</html>`,
+`<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Профессиональный ремонт холодильников в Курске. Bosch, Samsung, LG. Инверторные компрессоры. Срочный выезд.">
+<meta name="keywords" content="ремонт холодильников Курск, ремонт инверторных холодильников, мастер по холодильникам, MasterCool">
+<title>MasterCool Курск | Ремонт холодильников Premium Class</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg-color: #030814;
+--text-primary: #e0f7fa;
+--text-secondary: #b2ebf2;
+--accent-color: #00f2ff;
+--accent-secondary: #0066ff;
+--accent-glow: rgba(0, 242, 255, 0.4);
+--glass-bg: rgba(6, 18, 40, 0.65);
+--glass-border: rgba(0, 242, 255, 0.2);
+--card-bg: rgba(10, 25, 50, 0.7);
+--nav-bg: rgba(3, 8, 20, 0.85);
+--shadow: 0 10px 40px -10px rgba(0, 242, 255, 0.15);
+--transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="light"] {
+--bg-color: #f0f4f8;
+--text-primary: #102a43;
+--text-secondary: #243b53;
+--accent-color: #0077b6;
+--accent-secondary: #0096c7;
+--accent-glow: rgba(0, 119, 182, 0.3);
+--glass-bg: rgba(255, 255, 255, 0.75);
+--glass-border: rgba(0, 119, 182, 0.2);
+--card-bg: rgba(255, 255, 255, 0.85);
+--nav-bg: rgba(240, 244, 248, 0.9);
+--shadow: 0 10px 40px -10px rgba(0, 119, 182, 0.2);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+font-family: 'Rajdhani', sans-serif;
+background-color: var(--bg-color);
+color: var(--text-primary);
+overflow-x: hidden;
+transition: background-color 0.5s ease;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+.video-background {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+z-index: -2; overflow: hidden;
+}
+.video-background img {
+width: 100%; height: 100%;
+object-fit: cover;
+animation: slowZoom 30s infinite alternate;
+filter: brightness(0.7) contrast(1.1);
+}
+@keyframes slowZoom {
+0% { transform: scale(1); }
+100% { transform: scale(1.15); }
+}
+.overlay-gradient {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background: radial-gradient(circle at center, transparent 0%, var(--bg-color) 90%);
+z-index: -1;
+pointer-events: none;
+}
+.particle {
+position: absolute;
+background: var(--accent-color);
+border-radius: 50%;
+opacity: 0.4;
+animation: floatUp linear infinite;
+box-shadow: 0 0 10px var(--accent-color);
+}
+@keyframes floatUp {
+0% { transform: translateY(100vh) scale(0); opacity: 0; }
+50% { opacity: 0.6; }
+100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+header {
+position: fixed;
+top: 0; left: 0; width: 100%;
+padding: 1rem 5%;
+background: var(--nav-bg);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border-bottom: 1px solid var(--glass-border);
+z-index: 1000;
+display: flex;
+justify-content: space-between;
+align-items: center;
+transition: var(--transition);
+}
+.logo-container {
+display: flex;
+align-items: center;
+gap: 15px;
+cursor: pointer;
+perspective: 800px;
+}
+.logo-3d-wrapper {
+width: 50px; height: 50px;
+position: relative;
+transform-style: preserve-3d;
+animation: rotateLogo 8s infinite linear;
+}
+.logo-face {
+position: absolute;
+width: 50px; height: 50px;
+background: rgba(0, 242, 255, 0.1);
+border: 2px solid var(--accent-color);
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: 'Orbitron', sans-serif;
+font-weight: 900;
+color: var(--accent-color);
+box-shadow: 0 0 15px var(--accent-glow);
+backface-visibility: visible;
+}
+.logo-face.front  { transform: rotateY(0deg) translateZ(25px); }
+.logo-face.back   { transform: rotateY(180deg) translateZ(25px); }
+.logo-face.right  { transform: rotateY(90deg) translateZ(25px); }
+.logo-face.left   { transform: rotateY(-90deg) translateZ(25px); }
+.logo-face.top    { transform: rotateX(90deg) translateZ(25px); }
+.logo-face.bottom { transform: rotateX(-90deg) translateZ(25px); }
+@keyframes rotateLogo {
+0% { transform: rotateX(-15deg) rotateY(0deg); }
+100% { transform: rotateX(-15deg) rotateY(360deg); }
+}
+.logo-text-group {
+display: flex;
+flex-direction: column;
+}
+.logo-main {
+font-family: 'Orbitron', sans-serif;
+font-size: 1.4rem;
+font-weight: 900;
+background: linear-gradient(90deg, var(--text-primary), var(--accent-color));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+text-transform: uppercase;
+letter-spacing: 1px;
+line-height: 1;
+}
+.logo-sub {
+font-size: 0.8rem;
+color: var(--accent-color);
+letter-spacing: 3px;
+text-transform: uppercase;
+font-weight: 700;
+}
+nav ul {
+display: flex;
+list-style: none;
+gap: 2rem;
+}
+nav a {
+text-decoration: none;
+color: var(--text-secondary);
+font-weight: 600;
+text-transform: uppercase;
+font-size: 0.95rem;
+letter-spacing: 1px;
+position: relative;
+transition: var(--transition);
+}
+nav a::after {
+content: '';
+position: absolute;
+bottom: -5px; left: 0;
+width: 0; height: 2px;
+background: var(--accent-color);
+transition: var(--transition);
+box-shadow: 0 0 10px var(--accent-color);
+}
+nav a:hover { color: var(--accent-color); }
+nav a:hover::after { width: 100%; }
+.header-controls {
+display: flex;
+align-items: center;
+gap: 15px;
+}
+.theme-btn {
+background: transparent;
+border: 1px solid var(--glass-border);
+color: var(--text-primary);
+width: 40px; height: 40px;
+border-radius: 50%;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+transition: var(--transition);
+}
+.theme-btn:hover {
+background: var(--accent-color);
+color: var(--bg-color);
+box-shadow: 0 0 15px var(--accent-glow);
+}
+.mobile-menu-btn {
+display: none;
+background: none;
+border: none;
+color: var(--text-primary);
+font-size: 1.5rem;
+cursor: pointer;
+}
+main {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 8rem 5% 4rem;
+position: relative;
+z-index: 1;
+}
+.hero-card {
+background: var(--card-bg);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border: 1px solid var(--glass-border);
+border-radius: 24px;
+padding: 4rem;
+max-width: 1000px;
+width: 100%;
+box-shadow: var(--shadow);
+text-align: center;
+position: relative;
+overflow: hidden;
+animation: slideUpFade 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+opacity: 0;
+transform: translateY(30px);
+}
+.hero-card::before {
+content: '';
+position: absolute;
+top: -50%; left: -50%;
+width: 200%; height: 200%;
+background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+animation: rotateBg 20s linear infinite;
+pointer-events: none;
+}
+@keyframes rotateBg {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+@keyframes slideUpFade {
+to { opacity: 1; transform: translateY(0); }
+}
+h1 {
+font-family: 'Orbitron', sans-serif;
+font-size: 3rem;
+margin-bottom: 1.5rem;
+line-height: 1.1;
+color: var(--text-primary);
+text-transform: uppercase;
+}
+.highlight {
+color: var(--accent-color);
+text-shadow: 0 0 20px var(--accent-glow);
+display: inline-block;
+}
+.description {
+font-size: 1.25rem;
+line-height: 1.8;
+color: var(--text-secondary);
+margin-bottom: 3rem;
+max-width: 800px;
+margin-left: auto;
+margin-right: auto;
+}
+.description strong {
+color: var(--text-primary);
+font-weight: 700;
+}
+.cta-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+gap: 20px;
+width: 100%;
+max-width: 900px;
+margin: 0 auto;
+}
+.btn {
+position: relative;
+padding: 18px 30px;
+font-size: 1.1rem;
+font-weight: 700;
+text-decoration: none;
+border-radius: 12px;
+transition: var(--transition);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 12px;
+text-transform: uppercase;
+letter-spacing: 1px;
+overflow: hidden;
+border: none;
+cursor: pointer;
+font-family: 'Rajdhani', sans-serif;
+}
+.btn-primary {
+background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-secondary) 100%);
+color: #000;
+box-shadow: 0 4px 20px rgba(0, 242, 255, 0.3);
+}
+.btn-primary:hover {
+transform: translateY(-5px);
+box-shadow: 0 10px 30px rgba(0, 242, 255, 0.5);
+filter: brightness(1.1);
+}
+.btn-secondary {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid var(--glass-border);
+color: var(--text-primary);
+backdrop-filter: blur(5px);
+}
+.btn-secondary:hover {
+background: rgba(255, 255, 255, 0.1);
+border-color: var(--accent-color);
+transform: translateY(-5px);
+box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+content: attr(data-tooltip);
+position: absolute;
+bottom: 120%; left: 50%;
+transform: translateX(-50%) translateY(10px);
+background: rgba(0, 0, 0, 0.9);
+color: #fff;
+padding: 8px 12px;
+border-radius: 6px;
+font-size: 0.8rem;
+white-space: nowrap;
+opacity: 0;
+pointer-events: none;
+transition: all 0.3s ease;
+border: 1px solid var(--accent-color);
+z-index: 100;
+font-family: 'Rajdhani', sans-serif;
+box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+}
+[data-tooltip]:hover::after {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+.brands-section {
+width: 100%;
+background: var(--glass-bg);
+backdrop-filter: blur(10px);
+padding: 3rem 0;
+border-top: 1px solid var(--glass-border);
+border-bottom: 1px solid var(--glass-border);
+overflow: hidden;
+margin-top: auto;
+position: relative;
+}
+.brands-section::before, .brands-section::after {
+content: '';
+position: absolute;
+top: 0; bottom: 0;
+width: 100px;
+z-index: 2;
+pointer-events: none;
+}
+.brands-section::before { left: 0; background: linear-gradient(to right, var(--bg-color), transparent); }
+.brands-section::after { right: 0; background: linear-gradient(to left, var(--bg-color), transparent); }
+.slider-track {
+display: flex;
+width: calc(200px * 14);
+animation: scroll 30s linear infinite;
+}
+.brand-item {
+width: 200px;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 0 20px;
+opacity: 0.6;
+transition: opacity 0.3s;
+filter: grayscale(100%);
+}
+.brand-item:hover {
+opacity: 1;
+filter: grayscale(0%);
+}
+.brand-logo {
+font-family: 'Orbitron', sans-serif;
+font-size: 1.2rem;
+font-weight: 700;
+color: var(--text-secondary);
+text-transform: uppercase;
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 8px;
+}
+.brand-logo svg {
+width: 40px; height: 40px;
+fill: var(--accent-color);
+}
+@keyframes scroll {
+0% { transform: translateX(0); }
+100% { transform: translateX(calc(-200px * 7)); }
+}
+@media (max-width: 900px) {
+h1 { font-size: 2.2rem; }
+.hero-card { padding: 2.5rem 1.5rem; }
+nav {
+position: fixed;
+top: 80px; left: 0; width: 100%;
+background: var(--nav-bg);
+backdrop-filter: blur(20px);
+padding: 2rem;
+transform: translateY(-150%);
+transition: var(--transition);
+border-bottom: 1px solid var(--glass-border);
+}
+nav.active { transform: translateY(0); }
+nav ul { flex-direction: column; align-items: center; gap: 1.5rem; }
+.mobile-menu-btn { display: block; }
+.cta-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+h1 { font-size: 1.8rem; }
+.logo-main { font-size: 1.1rem; }
+.btn { font-size: 0.9rem; padding: 14px 20px; }
+}
+</style>
+</head>
+<body>
+<div class="video-background">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/19bf3a4be-baf1-456b-8ba5-8db90e374d33.png" alt="High-tech cooling background">
+</div>
+<div class="overlay-gradient"></div>
+<header>
+<div class="logo-container" data-tooltip="На главную">
+<div class="logo-3d-wrapper">
+<div class="logo-face front">M</div>
+<div class="logo-face back">C</div>
+<div class="logo-face right"></div>
+<div class="logo-face left"></div>
+<div class="logo-face top"></div>
+<div class="logo-face bottom"></div>
+</div>
+<div class="logo-text-group">
+<span class="logo-main">MasterCool</span>
+<span class="logo-sub">Курск</span>
+</div>
+</div>
+<nav id="navbar">
+<ul>
+<li><a href="#" data-tooltip="Основная страница">Главная</a></li>
+<li><a href="#services" data-tooltip="Наши услуги и цены">Услуги</a></li>
+<li><a href="#brands" data-tooltip="Работаем со всеми брендами">Бренды</a></li>
+</ul>
+</nav>
+<div class="header-controls">
+<button class="theme-btn" id="theme-toggle" data-tooltip="Сменить тему (День/Ночь)">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+</button>
+<button class="mobile-menu-btn" id="mobile-menu-btn" data-tooltip="Меню">☰</button>
+</div>
+</header>
+<main>
+<div class="hero-card">
+<h1>Ремонт <span class="highlight">Холодильников</span><br>в Курске</h1>
+<p class="description">
+Профессиональный ремонт бытовых холодильников <strong>всех марок</strong>.
+Специализируемся на сложной электронике:
+<span class="highlight">инверторные компрессоры</span>,
+<span class="highlight">линейные компрессоры</span> и системы No Frost.
+<br><br>
+Также выполняем обслуживание торгового оборудования: витрины, камеры, моноблоки.
+Гарантия на все виды работ.
+</p>
+<div class="cta-grid">
+<a href="tel:+79513265045" class="btn btn-primary" data-tooltip="Вызов мастера на дом">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+Позвонить +7 951 326 50 45
+</a>
+<a href="http://mastercool-kursk.ru/" target="_blank" class="btn btn-secondary" data-tooltip="Перейти на официальный сайт">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+mastercool-kursk.ru
+</a>
+<a href="http://холодильщик-курск.рф" target="_blank" class="btn btn-secondary" data-tooltip="Альтернативный ресурс">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+холодильник-курск.рф
+</a>
+</div>
+</div>
+</main>
+<div class="brands-section" id="brands">
+<div class="slider-track">
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg> LG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> MIELE</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg> INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ATLANT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg> LG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> MIELE</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg> INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ATLANT</div></div>
+</div>
+</div>
+<script>
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+body.setAttribute('data-theme', savedTheme);
+} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+body.setAttribute('data-theme', 'light');
+}
+themeToggle.addEventListener('click', () => {
+const currentTheme = body.getAttribute('data-theme');
+const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+body.setAttribute('data-theme', newTheme);
+localStorage.setItem('theme', newTheme);
+});
+const mobileBtn = document.getElementById('mobile-menu-btn');
+const navbar = document.getElementById('navbar');
+mobileBtn.addEventListener('click', () => {
+navbar.classList.toggle('active');
+mobileBtn.innerHTML = navbar.classList.contains('active') ? '✕' : '☰';
+});
+document.querySelectorAll('nav a').forEach(link => {
+link.addEventListener('click', () => {
+navbar.classList.remove('active');
+mobileBtn.innerHTML = '☰';
+});
+});
+function createParticles() {
+const container = document.querySelector('.video-background');
+const particleCount = 30;
+for (let i = 0; i < particleCount; i++) {
+const particle = document.createElement('div');
+particle.classList.add('particle');
+const size = Math.random() * 4 + 1;
+const left = Math.random() * 100;
+const duration = Math.random() * 15 + 10;
+const delay = Math.random() * 5;
+particle.style.width = size + 'px';
+particle.style.height = size + 'px';
+particle.style.left = left + '%';
+particle.style.animationDuration = duration + 's';
+particle.style.animationDelay = delay + 's';
+container.appendChild(particle);
+}
+}
+document.addEventListener('DOMContentLoaded', () => {
+createParticles();
+window.addEventListener('scroll', () => {
+const header = document.querySelector('header');
+if (window.scrollY > 50) {
+header.style.padding = '0.8rem 5%';
+header.style.background = 'var(--nav-bg)';
+} else {
+header.style.padding = '1rem 5%';
+header.style.background = 'var(--nav-bg)';
+}
+});
+});
+<\/script>
+</body>
+</html>`,
+`<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MasterCool Курск - Ремонт холодильников</title>
+<meta name="description" content="Профессиональный ремонт бытовых и торговых холодильников в Курске. Инверторные компрессоры, электронное управление.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg-color: #050b14;
+--text-primary: #e0f7fa;
+--text-secondary: #b2ebf2;
+--accent-color: #00e5ff;
+--accent-glow: rgba(0, 229, 255, 0.6);
+--glass-bg: rgba(10, 25, 47, 0.75);
+--glass-border: rgba(0, 229, 255, 0.3);
+--card-bg: rgba(16, 33, 60, 0.6);
+--button-bg: linear-gradient(135deg, #00e5ff 0%, #0091ea 100%);
+--button-text: #000;
+--shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+--transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+--nav-hover: rgba(0, 229, 255, 0.1);
+}
+[data-theme="light"] {
+--bg-color: #f0f4f8;
+--text-primary: #102a43;
+--text-secondary: #243b53;
+--accent-color: #0077b6;
+--accent-glow: rgba(0, 119, 182, 0.4);
+--glass-bg: rgba(255, 255, 255, 0.85);
+--glass-border: rgba(0, 119, 182, 0.2);
+--card-bg: rgba(255, 255, 255, 0.9);
+--button-bg: linear-gradient(135deg, #0077b6 0%, #005f8f 100%);
+--button-text: #fff;
+--shadow: 0 8px 32px 0 rgba(0, 119, 182, 0.15);
+--nav-hover: rgba(0, 119, 182, 0.1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+font-family: 'Rajdhani', sans-serif;
+background-color: var(--bg-color);
+color: var(--text-primary);
+overflow-x: hidden;
+transition: var(--transition);
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+.video-background {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+z-index: -1; overflow: hidden;
+}
+.video-background img {
+width: 100%; height: 100%;
+object-fit: cover;
+animation: kenBurns 30s infinite alternate;
+filter: brightness(0.6) contrast(1.1);
+}
+@keyframes kenBurns {
+0% { transform: scale(1) translate(0, 0); }
+100% { transform: scale(1.1) translate(-2%, -2%); }
+}
+.particle {
+position: absolute;
+background: var(--accent-color);
+border-radius: 50%;
+opacity: 0.3;
+animation: floatUp linear infinite;
+pointer-events: none;
+}
+@keyframes floatUp {
+0% { transform: translateY(100vh) scale(0); opacity: 0; }
+50% { opacity: 0.5; }
+100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+}
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1rem 5%;
+background: var(--glass-bg);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+border-bottom: 1px solid var(--glass-border);
+position: sticky;
+top: 0;
+z-index: 1000;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+.logo-container {
+display: flex;
+align-items: center;
+gap: 15px;
+cursor: pointer;
+perspective: 500px;
+}
+.logo-icon {
+width: 60px; height: 60px;
+object-fit: contain;
+animation: floatLogo 4s ease-in-out infinite;
+filter: drop-shadow(0 0 10px var(--accent-glow));
+}
+@keyframes floatLogo {
+0%, 100% { transform: translateY(0) rotateX(0deg); }
+50% { transform: translateY(-5px) rotateX(10deg); }
+}
+.logo-text {
+font-family: 'Orbitron', sans-serif;
+font-size: 1.5rem;
+font-weight: 900;
+background: linear-gradient(90deg, var(--text-primary), var(--accent-color));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+text-transform: uppercase;
+letter-spacing: 2px;
+position: relative;
+}
+.logo-text::after {
+content: 'КУРСК';
+display: block;
+font-size: 0.7rem;
+letter-spacing: 4px;
+color: var(--accent-color);
+-webkit-text-fill-color: var(--accent-color);
+margin-top: -5px;
+}
+nav ul {
+display: flex;
+list-style: none;
+gap: 2rem;
+}
+nav a {
+text-decoration: none;
+color: var(--text-primary);
+font-weight: 700;
+text-transform: uppercase;
+font-size: 1rem;
+padding: 8px 16px;
+border-radius: 8px;
+transition: var(--transition);
+position: relative;
+}
+nav a:hover {
+background: var(--nav-hover);
+color: var(--accent-color);
+text-shadow: 0 0 8px var(--accent-glow);
+}
+nav a::after {
+content: '';
+position: absolute;
+bottom: 0; left: 50%;
+width: 0; height: 2px;
+background: var(--accent-color);
+transition: all 0.3s ease;
+transform: translateX(-50%);
+}
+nav a:hover::after { width: 80%; }
+.theme-switch {
+background: transparent;
+border: 2px solid var(--accent-color);
+color: var(--accent-color);
+padding: 8px 16px;
+border-radius: 20px;
+cursor: pointer;
+font-family: 'Rajdhani', sans-serif;
+font-weight: 700;
+transition: var(--transition);
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.theme-switch:hover {
+background: var(--accent-color);
+color: var(--bg-color);
+box-shadow: 0 0 15px var(--accent-glow);
+}
+main {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 4rem 5%;
+text-align: center;
+position: relative;
+}
+.hero-card {
+background: var(--card-bg);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border: 1px solid var(--glass-border);
+border-radius: 24px;
+padding: 3rem;
+max-width: 900px;
+width: 100%;
+box-shadow: var(--shadow);
+transform: translateY(20px);
+opacity: 0;
+animation: slideUp 0.8s forwards 0.3s;
+position: relative;
+overflow: hidden;
+}
+.hero-card::before {
+content: '';
+position: absolute;
+top: 0; left: -100%;
+width: 100%; height: 100%;
+background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+animation: shimmer 3s infinite;
+}
+@keyframes shimmer { 100% { left: 100%; } }
+@keyframes slideUp { to { transform: translateY(0); opacity: 1; } }
+h1 {
+font-family: 'Orbitron', sans-serif;
+font-size: 2.5rem;
+margin-bottom: 1.5rem;
+line-height: 1.2;
+color: var(--text-primary);
+}
+.highlight {
+color: var(--accent-color);
+text-shadow: 0 0 10px var(--accent-glow);
+}
+p.description {
+font-size: 1.2rem;
+line-height: 1.6;
+color: var(--text-secondary);
+margin-bottom: 2.5rem;
+max-width: 800px;
+margin-left: auto;
+margin-right: auto;
+}
+.cta-container {
+display: flex;
+flex-wrap: wrap;
+gap: 20px;
+justify-content: center;
+margin-top: 2rem;
+}
+.btn {
+position: relative;
+padding: 16px 32px;
+font-size: 1.1rem;
+font-weight: 700;
+text-decoration: none;
+border-radius: 12px;
+transition: var(--transition);
+display: inline-flex;
+align-items: center;
+gap: 10px;
+text-transform: uppercase;
+letter-spacing: 1px;
+overflow: hidden;
+border: none;
+cursor: pointer;
+z-index: 1;
+}
+.btn-primary {
+background: var(--button-bg);
+color: var(--button-text);
+box-shadow: 0 4px 15px rgba(0, 229, 255, 0.4);
+}
+.btn-primary:hover {
+transform: translateY(-3px);
+box-shadow: 0 8px 25px rgba(0, 229, 255, 0.6);
+}
+.btn-secondary {
+background: transparent;
+border: 2px solid var(--accent-color);
+color: var(--accent-color);
+}
+.btn-secondary:hover {
+background: rgba(0, 229, 255, 0.1);
+transform: translateY(-3px);
+box-shadow: 0 0 15px var(--accent-glow);
+}
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+content: attr(data-tooltip);
+position: absolute;
+bottom: 110%; left: 50%;
+transform: translateX(-50%) translateY(10px);
+background: rgba(0, 0, 0, 0.9);
+color: #fff;
+padding: 8px 12px;
+border-radius: 6px;
+font-size: 0.85rem;
+white-space: nowrap;
+opacity: 0;
+pointer-events: none;
+transition: all 0.3s ease;
+border: 1px solid var(--accent-color);
+z-index: 100;
+}
+[data-tooltip]:hover::after {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+.brands-section {
+width: 100%;
+background: var(--glass-bg);
+backdrop-filter: blur(10px);
+padding: 2rem 0;
+border-top: 1px solid var(--glass-border);
+border-bottom: 1px solid var(--glass-border);
+overflow: hidden;
+margin-top: auto;
+position: relative;
+}
+.slider-track {
+display: flex;
+width: calc(200px * 14);
+animation: scroll 40s linear infinite;
+}
+.brand-item {
+width: 200px;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 0 20px;
+opacity: 0.7;
+transition: opacity 0.3s;
+}
+.brand-item:hover { opacity: 1; }
+.brand-logo {
+font-family: 'Orbitron', sans-serif;
+font-size: 1.2rem;
+font-weight: 700;
+color: var(--text-secondary);
+text-transform: uppercase;
+letter-spacing: 2px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.brand-logo svg {
+width: 30px; height: 30px;
+fill: var(--accent-color);
+}
+@keyframes scroll {
+0% { transform: translateX(0); }
+100% { transform: translateX(calc(-200px * 7)); }
+}
+@media (max-width: 768px) {
+h1 { font-size: 1.8rem; }
+.hero-card { padding: 2rem 1.5rem; }
+.logo-text { font-size: 1.2rem; }
+.cta-container { flex-direction: column; width: 100%; }
+.btn { width: 100%; justify-content: center; }
+.slider-track { animation-duration: 20s; }
+nav { display: none; }
+header { justify-content: center; }
+.theme-switch { position: absolute; right: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="video-background" id="bg-container">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/14bd414c7-a878-410f-9a9b-f73b94827844.png" alt="Cooling Technology Background">
+</div>
+<header>
+<div class="logo-container" data-tooltip="Главная страница">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/16cbf2911-90ac-401b-9903-94d6056d2fc1.png" alt="MasterCool Logo" class="logo-icon">
+<div class="logo-text">MasterCool</div>
+</div>
+<nav>
+<ul>
+<li><a href="#" data-tooltip="Вернуться на главную">Главная</a></li>
+<li><a href="#" data-tooltip="Наши услуги по ремонту">Услуги</a></li>
+<li><a href="#" data-tooltip="Бренды, которые мы ремонтируем">Бренды</a></li>
+</ul>
+</nav>
+<button class="theme-switch" id="theme-toggle" data-tooltip="Переключить тему (Светлая/Темная)">
+<span>🌓 Тема</span>
+</button>
+</header>
+<main>
+<div class="hero-card">
+<h1>Ремонт <span class="highlight">Холодильников</span><br>в Курске</h1>
+<p class="description">
+Ремонт бытовых холодильников в Курске всех марок, в том числе с
+<span class="highlight">электронным управлением</span>,
+<span class="highlight">инверторным компрессором</span> и
+<span class="highlight">инверторным линейным компрессором</span>.
+<br><br>
+Ремонт торгового холодильного оборудования (витрины, холодильные камеры).
+</p>
+<div class="cta-container">
+<a href="tel:+79513265045" class="btn btn-primary" data-tooltip="Позвонить мастеру прямо сейчас">
+📞 Позвонить +7 951 326 50 45
+</a>
+<a href="http://mastercool-kursk.ru/" target="_blank" class="btn btn-secondary" data-tooltip="Перейти на основной сайт">
+🌐 mastercool-kursk.ru
+</a>
+<a href="http://холодильщик-курск.рф" target="_blank" class="btn btn-secondary" data-tooltip="Перейти на альтернативный сайт">
+🌐 холодильник-курск.рф
+</a>
+</div>
+</div>
+</main>
+<div class="brands-section">
+<div class="slider-track">
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg> LG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> MIELE</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg> INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ATLANT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg> BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg> SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 22h20L12 2z"/></svg> LG</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="2"/></svg> MIELE</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/></svg> INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> ATLANT</div></div>
+</div>
+</div>
+<script>
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+body.setAttribute('data-theme', savedTheme);
+} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+body.setAttribute('data-theme', 'light');
+}
+themeToggle.addEventListener('click', () => {
+const currentTheme = body.getAttribute('data-theme');
+const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+body.setAttribute('data-theme', newTheme);
+localStorage.setItem('theme', newTheme);
+themeToggle.style.transform = 'scale(0.95)';
+setTimeout(() => themeToggle.style.transform = 'scale(1)', 150);
+});
+function createParticles() {
+const container = document.getElementById('bg-container');
+const particleCount = 20;
+for (let i = 0; i < particleCount; i++) {
+const particle = document.createElement('div');
+particle.classList.add('particle');
+const size = Math.random() * 5 + 2;
+const left = Math.random() * 100;
+const duration = Math.random() * 10 + 10;
+const delay = Math.random() * 5;
+particle.style.width = size + 'px';
+particle.style.height = size + 'px';
+particle.style.left = left + '%';
+particle.style.animationDuration = duration + 's';
+particle.style.animationDelay = delay + 's';
+container.appendChild(particle);
+}
+}
+document.addEventListener('DOMContentLoaded', () => {
+createParticles();
+const logoText = document.querySelector('.logo-text');
+logoText.addEventListener('mouseenter', () => {
+logoText.style.textShadow = '0 0 20px var(--accent-glow)';
+});
+logoText.addEventListener('mouseleave', () => {
+logoText.style.textShadow = 'none';
+});
+});
+<\/script>
+</body>
+</html>`,
+`<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MasterCool Курск - Профессиональный ремонт холодильников</title>
+<meta name="description" content="Ремонт бытовых и торговых холодильников в Курске. Инверторные компрессоры, электронное управление.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+--bg-color: #020617;
+--text-primary: #f8fafc;
+--text-secondary: #94a3b8;
+--accent-primary: #06b6d4;
+--accent-secondary: #3b82f6;
+--accent-glow: rgba(6, 182, 212, 0.5);
+--glass-bg: rgba(15, 23, 42, 0.6);
+--glass-border: rgba(255, 255, 255, 0.1);
+--card-bg: rgba(30, 41, 59, 0.4);
+--btn-gradient: linear-gradient(135deg, #06b6d4 0%, #2563eb 100%);
+--shadow-lg: 0 10px 40px -10px rgba(0,0,0,0.5);
+--transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="light"] {
+--bg-color: #f0f9ff;
+--text-primary: #0f172a;
+--text-secondary: #475569;
+--accent-primary: #0891b2;
+--accent-secondary: #0284c7;
+--accent-glow: rgba(8, 145, 178, 0.3);
+--glass-bg: rgba(255, 255, 255, 0.7);
+--glass-border: rgba(0, 0, 0, 0.05);
+--card-bg: rgba(255, 255, 255, 0.8);
+--btn-gradient: linear-gradient(135deg, #0891b2 0%, #0369a1 100%);
+--shadow-lg: 0 10px 40px -10px rgba(0,0,0,0.1);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+font-family: 'Montserrat', sans-serif;
+background-color: var(--bg-color);
+color: var(--text-primary);
+overflow-x: hidden;
+transition: background-color 0.5s ease, color 0.5s ease;
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+position: relative;
+}
+.bg-video-container {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+z-index: -2; overflow: hidden;
+}
+.bg-video-container img {
+width: 100%; height: 100%;
+object-fit: cover;
+animation: slowZoom 30s infinite alternate;
+filter: brightness(0.7) contrast(1.1);
+}
+@keyframes slowZoom {
+0% { transform: scale(1); }
+100% { transform: scale(1.15); }
+}
+.overlay {
+position: fixed;
+top: 0; left: 0; width: 100%; height: 100%;
+background: radial-gradient(circle at center, transparent 0%, var(--bg-color) 90%);
+z-index: -1;
+pointer-events: none;
+}
+header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 1rem 5%;
+background: var(--glass-bg);
+backdrop-filter: blur(20px);
+-webkit-backdrop-filter: blur(20px);
+border-bottom: 1px solid var(--glass-border);
+position: sticky;
+top: 0;
+z-index: 1000;
+box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+.logo-wrapper {
+display: flex;
+align-items: center;
+gap: 15px;
+cursor: pointer;
+perspective: 1000px;
+}
+.logo-3d-container {
+width: 60px; height: 60px;
+position: relative;
+transform-style: preserve-3d;
+animation: float3D 6s ease-in-out infinite;
+}
+.logo-img {
+width: 100%; height: 100%;
+object-fit: contain;
+filter: drop-shadow(0 0 15px var(--accent-glow));
+transition: transform 0.5s ease;
+}
+@keyframes float3D {
+0%, 100% { transform: rotateY(-10deg) rotateX(5deg) translateY(0); }
+50% { transform: rotateY(10deg) rotateX(-5deg) translateY(-10px); }
+}
+.logo-text-block {
+display: flex;
+flex-direction: column;
+}
+.logo-title {
+font-family: 'Orbitron', sans-serif;
+font-size: 1.5rem;
+font-weight: 900;
+background: linear-gradient(to right, var(--text-primary), var(--accent-primary));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+text-transform: uppercase;
+line-height: 1;
+}
+.logo-subtitle {
+font-size: 0.8rem;
+color: var(--accent-primary);
+letter-spacing: 2px;
+font-weight: 600;
+text-transform: uppercase;
+}
+nav ul {
+display: flex;
+list-style: none;
+gap: 2rem;
+}
+nav a {
+text-decoration: none;
+color: var(--text-primary);
+font-weight: 600;
+font-size: 0.95rem;
+position: relative;
+padding: 5px 0;
+transition: color 0.3s;
+}
+nav a::after {
+content: '';
+position: absolute;
+bottom: 0; left: 0;
+width: 0; height: 2px;
+background: var(--accent-primary);
+transition: width 0.3s ease;
+box-shadow: 0 0 10px var(--accent-primary);
+}
+nav a:hover { color: var(--accent-primary); }
+nav a:hover::after { width: 100%; }
+.theme-btn {
+background: transparent;
+border: 1px solid var(--glass-border);
+color: var(--text-primary);
+width: 40px; height: 40px;
+border-radius: 50%;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 1.2rem;
+transition: var(--transition);
+}
+.theme-btn:hover {
+background: var(--glass-border);
+transform: rotate(180deg);
+}
+main {
+flex: 1;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+padding: 4rem 5%;
+text-align: center;
+position: relative;
+}
+.hero-card {
+background: var(--card-bg);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border: 1px solid var(--glass-border);
+border-radius: 30px;
+padding: 4rem 2rem;
+max-width: 1000px;
+width: 100%;
+box-shadow: var(--shadow-lg);
+transform: translateY(30px);
+opacity: 0;
+animation: slideUpFade 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+position: relative;
+overflow: hidden;
+}
+.hero-card::before {
+content: '';
+position: absolute;
+top: -50%; left: -50%;
+width: 200%; height: 200%;
+background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 60%);
+animation: rotateBg 20s linear infinite;
+pointer-events: none;
+}
+@keyframes rotateBg {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+@keyframes slideUpFade {
+to { transform: translateY(0); opacity: 1; }
+}
+h1 {
+font-family: 'Orbitron', sans-serif;
+font-size: 3rem;
+margin-bottom: 2rem;
+line-height: 1.1;
+color: var(--text-primary);
+text-transform: uppercase;
+}
+.highlight {
+color: var(--accent-primary);
+text-shadow: 0 0 20px var(--accent-glow);
+position: relative;
+display: inline-block;
+}
+p.description {
+font-size: 1.15rem;
+line-height: 1.8;
+color: var(--text-secondary);
+margin-bottom: 3rem;
+max-width: 850px;
+margin-left: auto;
+margin-right: auto;
+}
+.cta-grid {
+display: flex;
+flex-wrap: wrap;
+gap: 20px;
+justify-content: center;
+margin-top: 2rem;
+}
+.btn {
+position: relative;
+padding: 18px 36px;
+font-size: 1rem;
+font-weight: 700;
+text-decoration: none;
+border-radius: 12px;
+transition: var(--transition);
+display: inline-flex;
+align-items: center;
+gap: 12px;
+text-transform: uppercase;
+letter-spacing: 1px;
+overflow: hidden;
+border: none;
+cursor: pointer;
+z-index: 1;
+}
+.btn-primary {
+background: var(--btn-gradient);
+color: #fff;
+box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+}
+.btn-primary:hover {
+transform: translateY(-5px);
+box-shadow: 0 15px 30px rgba(6, 182, 212, 0.6);
+}
+.btn-secondary {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid var(--accent-primary);
+color: var(--text-primary);
+backdrop-filter: blur(5px);
+}
+.btn-secondary:hover {
+background: var(--accent-primary);
+color: #fff;
+transform: translateY(-5px);
+box-shadow: 0 0 20px var(--accent-glow);
+}
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+content: attr(data-tooltip);
+position: absolute;
+bottom: 120%; left: 50%;
+transform: translateX(-50%) translateY(10px);
+background: rgba(0, 0, 0, 0.9);
+color: #fff;
+padding: 8px 12px;
+border-radius: 6px;
+font-size: 0.8rem;
+white-space: nowrap;
+opacity: 0;
+pointer-events: none;
+transition: all 0.3s ease;
+border: 1px solid var(--accent-primary);
+z-index: 100;
+font-family: 'Montserrat', sans-serif;
+box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+[data-tooltip]:hover::after {
+opacity: 1;
+transform: translateX(-50%) translateY(0);
+}
+.brands-section {
+width: 100%;
+background: var(--glass-bg);
+backdrop-filter: blur(10px);
+padding: 3rem 0;
+border-top: 1px solid var(--glass-border);
+border-bottom: 1px solid var(--glass-border);
+overflow: hidden;
+margin-top: auto;
+position: relative;
+}
+.brands-section::before, .brands-section::after {
+content: '';
+position: absolute;
+top: 0; width: 150px; height: 100%;
+z-index: 2; pointer-events: none;
+}
+.brands-section::before {
+left: 0;
+background: linear-gradient(to right, var(--bg-color), transparent);
+}
+.brands-section::after {
+right: 0;
+background: linear-gradient(to left, var(--bg-color), transparent);
+}
+.slider-track {
+display: flex;
+width: calc(200px * 14);
+animation: scroll 40s linear infinite;
+}
+.brand-item {
+width: 200px;
+display: flex;
+justify-content: center;
+align-items: center;
+padding: 0 20px;
+opacity: 0.6;
+transition: opacity 0.3s, transform 0.3s;
+filter: grayscale(100%);
+}
+.brand-item:hover {
+opacity: 1;
+transform: scale(1.1);
+filter: grayscale(0%);
+}
+.brand-logo-text {
+font-family: 'Orbitron', sans-serif;
+font-size: 1.5rem;
+font-weight: 800;
+color: var(--text-secondary);
+text-transform: uppercase;
+letter-spacing: 1px;
+display: flex;
+align-items: center;
+gap: 10px;
+}
+@keyframes scroll {
+0% { transform: translateX(0); }
+100% { transform: translateX(calc(-200px * 7)); }
+}
+@media (max-width: 900px) {
+h1 { font-size: 2.2rem; }
+nav { display: none; }
+.logo-subtitle { display: none; }
+}
+@media (max-width: 600px) {
+.hero-card { padding: 2rem 1.5rem; }
+h1 { font-size: 1.8rem; }
+.cta-grid { flex-direction: column; width: 100%; }
+.btn { width: 100%; justify-content: center; }
+.slider-track { animation-duration: 20s; }
+}
+</style>
+</head>
+<body>
+<div class="bg-video-container">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/1cf795396-a4b3-433f-a3f9-bd281cea6e99.png" alt="Cooling Technology Background">
+</div>
+<div class="overlay"></div>
+<header>
+<div class="logo-wrapper" data-tooltip="На главную">
+<div class="logo-3d-container">
+<img src="https://image.qwenlm.ai/public_source/4e01525a-e6b9-486f-ae96-3e22a6ed4041/1774e5664-10fa-4e3f-ab23-a1ce9fa65318.png" alt="MasterCool Logo" class="logo-img">
+</div>
+<div class="logo-text-block">
+<span class="logo-title">MasterCool</span>
+<span class="logo-subtitle">Курск</span>
+</div>
+</div>
+<nav>
+<ul>
+<li><a href="#" data-tooltip="Вернуться в начало">Главная</a></li>
+<li><a href="#" data-tooltip="Наши услуги и цены">Услуги</a></li>
+<li><a href="#" data-tooltip="Марки оборудования">Бренды</a></li>
+</ul>
+</nav>
+<button class="theme-btn" id="theme-toggle" data-tooltip="Переключить тему">
+<span id="theme-icon">🌙</span>
+</button>
+</header>
+<main>
+<div class="hero-card">
+<h1>Ремонт <span class="highlight">Холодильников</span><br>в Курске</h1>
+<p class="description">
+Ремонт бытовых холодильников в Курске всех марок, в том числе с электронным управлением,
+<span class="highlight">инверторным компрессором</span> и
+<span class="highlight">инверторным линейным компрессором</span>.
+<br><br>
+Ремонт торгового холодильного оборудования (витрины, холодильные камеры).
+</p>
+<div class="cta-grid">
+<a href="tel:+79513265045" class="btn btn-primary" data-tooltip="Вызов мастера на дом">
+<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"></path></svg>
+Позвонить +7 951 326 50 45
+</a>
+<a href="http://mastercool-kursk.ru/" target="_blank" class="btn btn-secondary" data-tooltip="Официальный сайт">
+🌐 mastercool-kursk.ru
+</a>
+<a href="http://холодильщик-курск.рф" target="_blank" class="btn btn-secondary" data-tooltip="Альтернативный портал">
+🌐 холодильник-курск.рф
+</a>
+</div>
+</div>
+</main>
+<div class="brands-section">
+<div class="slider-track">
+<div class="brand-item"><div class="brand-logo-text">BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo-text">SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo-text">LG</div></div>
+<div class="brand-item"><div class="brand-logo-text">MIELE</div></div>
+<div class="brand-item"><div class="brand-logo-text">LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo-text">INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo-text">ATLANT</div></div>
+<div class="brand-item"><div class="brand-logo-text">BOSCH</div></div>
+<div class="brand-item"><div class="brand-logo-text">SAMSUNG</div></div>
+<div class="brand-item"><div class="brand-logo-text">LG</div></div>
+<div class="brand-item"><div class="brand-logo-text">MIELE</div></div>
+<div class="brand-item"><div class="brand-logo-text">LIEBHERR</div></div>
+<div class="brand-item"><div class="brand-logo-text">INDESIT</div></div>
+<div class="brand-item"><div class="brand-logo-text">ATLANT</div></div>
+</div>
+</div>
+<script>
+const themeToggle = document.getElementById('theme-toggle');
+const themeIcon = document.getElementById('theme-icon');
+const body = document.body;
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+body.setAttribute('data-theme', savedTheme);
+updateIcon(savedTheme);
+} else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+body.setAttribute('data-theme', 'light');
+updateIcon('light');
+}
+function updateIcon(theme) {
+themeIcon.textContent = theme === 'light' ? '☀️' : '🌙';
+}
+themeToggle.addEventListener('click', () => {
+const currentTheme = body.getAttribute('data-theme');
+const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+body.setAttribute('data-theme', newTheme);
+localStorage.setItem('theme', newTheme);
+updateIcon(newTheme);
+themeToggle.style.transform = 'scale(0.8) rotate(360deg)';
+setTimeout(() => themeToggle.style.transform = 'scale(1) rotate(0deg)', 400);
+});
+document.addEventListener('mousemove', (e) => {
+const card = document.querySelector('.hero-card');
+if (!card) return;
+const xAxis = (window.innerWidth / 2 - e.pageX) / 50;
+const yAxis = (window.innerHeight / 2 - e.pageY) / 50;
+card.style.transform = 'translateY(0) rotateY(' + xAxis + 'deg) rotateX(' + yAxis + 'deg)';
+});
+<\/script>
+</body>
+</html>`
+];
+
+    const totalSlides = htmlSources.length;
+    let currentIndex = 0;
+    let isPlaying = true;
+    let intervalId = null;
+    const SWITCH_INTERVAL = 5000; // 5 секунд
+
+    // --- Элементы управления ---
+    const stage = document.getElementById('iframeStage');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const playPauseIcon = document.getElementById('playPauseIcon');
+    const playPauseText = document.getElementById('playPauseText');
+    const slideIndicator = document.getElementById('slideIndicator');
+    const dotContainer = document.getElementById('dotContainer');
+    const timerGlow = document.getElementById('timerGlow');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    // Создаём iframe
+    for (let i = 0; i < totalSlides; i++) {
+        const iframe = document.createElement('iframe');
+        iframe.setAttribute('srcdoc', htmlSources[i]);
+        iframe.setAttribute('frameborder', '0');
+        iframe.setAttribute('allowfullscreen', 'true');
+        iframe.setAttribute('title', 'Сайт ' + (i + 1));
+        iframe.classList.add('iframe-slide');
+        if (i === 0) iframe.classList.add('active');
+        stage.appendChild(iframe);
+    }
+
+    const slides = document.querySelectorAll('.iframe-slide');
+
+    // --- Точки-индикаторы ---
+    for (let i = 0; i < totalSlides; i++) {
+        const dot = document.createElement('span');
+        dot.classList.add('dot');
+        dot.setAttribute('role', 'tab');
+        dot.setAttribute('aria-label', 'Перейти к слайду ' + (i + 1));
+        dot.dataset.index = i;
+        dotContainer.appendChild(dot);
+    }
+
+    const dots = document.querySelectorAll('.dot');
+
+    function updateDots(index) {
+        dots.forEach((dot, i) => {
+            if (i === index) {
+                dot.classList.add('active');
+                dot.setAttribute('aria-selected', 'true');
+            } else {
+                dot.classList.remove('active');
+                dot.setAttribute('aria-selected', 'false');
+            }
+        });
+    }
+
+    // --- Переход к слайду ---
+    function goToSlide(index, resetTimer = true) {
+        if (index < 0) index = totalSlides - 1;
+        if (index >= totalSlides) index = 0;
+
+        slides.forEach((slide, i) => {
+            slide.classList.toggle('active', i === index);
+        });
+
+        currentIndex = index;
+        slideIndicator.innerText = (index + 1) + ' / ' + totalSlides;
+        updateDots(index);
+
+        if (resetTimer) {
+            resetAutoPlay();
+        }
+    }
+
+    // --- Вперёд/Назад ---
+    function nextSlide() {
+        goToSlide(currentIndex + 1);
+    }
+
+    function prevSlide() {
+        goToSlide(currentIndex - 1);
+    }
+
+    // --- Автопереключение ---
+    function startAutoPlay() {
+        if (intervalId) clearInterval(intervalId);
+        intervalId = setInterval(() => {
+            if (isPlaying) {
+                nextSlide();
+            }
+        }, SWITCH_INTERVAL);
+        startTimerAnimation();
+        updateStatus(true);
+    }
+
+    function stopAutoPlay() {
+        if (intervalId) {
+            clearInterval(intervalId);
+            intervalId = null;
+        }
+        resetTimerAnimation();
+        updateStatus(false);
+    }
+
+    function resetAutoPlay() {
+        if (isPlaying) {
+            stopAutoPlay();
+            startAutoPlay();
+        } else {
+            resetTimerAnimation();
+        }
+    }
+
+    // --- Анимация таймера ---
+    function startTimerAnimation() {
+        timerGlow.style.transition = 'none';
+        timerGlow.style.width = '0%';
+        void timerGlow.offsetWidth; // force reflow
+        timerGlow.style.transition = 'width ' + SWITCH_INTERVAL + 'ms linear';
+        timerGlow.style.width = '100%';
+    }
+
+    function resetTimerAnimation() {
+        timerGlow.style.transition = 'none';
+        timerGlow.style.width = '0%';
+    }
+
+    // --- Статус бар ---
+    function updateStatus(playing) {
+        if (playing) {
+            statusDot.classList.remove('paused');
+            statusText.innerText = 'АВТО';
+        } else {
+            statusDot.classList.add('paused');
+            statusText.innerText = 'ПАУЗА';
+        }
+    }
+
+    // --- Пауза / Воспроизведение ---
+    function togglePlayPause() {
+        isPlaying = !isPlaying;
+        if (isPlaying) {
+            playPauseIcon.innerText = '⏸️';
+            playPauseText.innerText = 'Пауза';
+            playPauseBtn.classList.remove('pause');
+            playPauseBtn.setAttribute('aria-label', 'Пауза');
+            startAutoPlay();
+        } else {
+            playPauseIcon.innerText = '▶️';
+            playPauseText.innerText = 'Старт';
+            playPauseBtn.classList.add('pause');
+            playPauseBtn.setAttribute('aria-label', 'Старт');
+            stopAutoPlay();
+        }
+    }
+
+    // --- Инициализация ---
+    function init() {
+        // Скрываем загрузку после небольшой задержки
+        setTimeout(() => {
+            loadingOverlay.classList.add('hidden');
+        }, 1000);
+
+        goToSlide(0, false);
+        startAutoPlay();
+
+        prevBtn.addEventListener('click', () => {
+            prevSlide();
+        });
+
+        nextBtn.addEventListener('click', () => {
+            nextSlide();
+        });
+
+        playPauseBtn.addEventListener('click', togglePlayPause);
+
+        // Клавиатурное управление
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === ' ' || e.key === 'Enter') {
+                e.preventDefault();
+                togglePlayPause();
+            }
+        });
+
+        // Клик по точкам
+        dots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                const idx = parseInt(e.target.dataset.index, 10);
+                goToSlide(idx);
+            });
+        });
+
+        // Обновление статуса при загрузке
+        updateStatus(true);
+    }
+
+    // Запуск
+    init();
+})();
+</script>
+</body>
+</html>
